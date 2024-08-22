@@ -22,13 +22,18 @@ export class VoiceController {
     @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('file'))
   create(@UploadedFile() file: Express.Multer.File, @Body() createVoiceDto: CreateVoiceDto) {
-    let link:string = '';
+    let link: string = '';
+    let boolString = "true"; 
     if (file) {
        const voicePath = path.join(__dirname,'..','..', '/public/voice', privateFileName(normalizeString(file.originalname)));
       fs.writeFileSync(voicePath, file.buffer);
       link = cutFilePath(voicePath, path.join(__dirname, '..', '..', '/public/'));
+      console.log(createVoiceDto.isGeneral);
       const data: CreateVoiceDto = {
-        ...createVoiceDto,
+         fileId: +createVoiceDto.fileId,
+        order: +createVoiceDto.order,
+        isGeneral: (/true/).test(createVoiceDto.isGeneral.toString()),
+        typeVoiceId:+createVoiceDto.typeVoiceId,
         link: link,
       }
       return this.voiceService.create(data);
@@ -65,7 +70,10 @@ export class VoiceController {
       fs.writeFileSync(voicePath, file.buffer);
       link = cutFilePath(voicePath, path.join(__dirname, '..', '..', '/public/'));
       const data: UpdateVoiceDto = {
-        ...updateVoiceDto,
+        fileId: +updateVoiceDto.fileId,
+        order: +updateVoiceDto.order,
+        isGeneral: (/true/).test(updateVoiceDto.isGeneral.toString()),
+        typeVoiceId:+updateVoiceDto.typeVoiceId,
         link: link,
       }
       const voicePathOld = path.join(__dirname, '..', '..', '/public', voice.data?.link);
