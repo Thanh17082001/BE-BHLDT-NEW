@@ -1,0 +1,41 @@
+### Create a new role
+POST http://localhost:3000/api/role
+Content-Type: application/json
+
+{
+    "name": "Admin",
+    "description": "Admin"
+}
+
+###  Update role
+PUT  http://localhost:3000/api/role/1
+content-type: application/json
+
+{   
+    "id": 1,    
+     "name": "Admin",
+    "description": "Admin"
+}
+
+### DELETE a role given id
+DELETE http://localhost:3000/api/role/1
+
+### Find a role
+GET http://localhost:3000/api/role
+
+### Find a role
+GET http://localhost:3000/api/role/2
+
+### Find all role
+GET http://localhost:3000/api/role?page=1
+
+### add role to user
+
+POST http://localhost:3000/api/role/add-roles-to-users
+Content-Type: application/json
+
+{
+    "userId":2,
+    "roles": [1]
+}
+

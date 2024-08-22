@@ -1,0 +1,37 @@
+### Create a new user
+POST http://localhost:3000/api/user
+Content-Type: application/json
+
+{
+    "email": "dong@gmail.com",
+    "username":"dong@gmail.com",
+    "fullname": "dong",
+    "password": "123124",
+    "gender": "male",
+    "status": "1",
+    "birthday": "2011-10-05T14:48:00.000Z"
+}
+
+###  Update User
+PUT http://localhost:9000/user/1
+content-type: application/json
+
+{
+    "fullname": "HKT4444",
+    "password" : "123456"
+}
+
+### DELETE a user given id
+DELETE http://localhost:9000/user/2
+
+### Find a user
+GET http://localhost:3000/user
+
+### Find a user
+GET http://localhost:3000/api/user/2
+
+
+### Find all user
+GET http://localhost:3000/api/user?
+
+
