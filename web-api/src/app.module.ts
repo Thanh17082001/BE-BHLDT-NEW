@@ -54,6 +54,7 @@ import { AnswerModule } from './answer/answer.module';
 import { VoiceModule } from './voice/voice.module';
 import { TypeVoiceModule } from './type-voice/type-voice.module';
 import { TypeVoice } from './type-voice/entities/type-voice.entity';
+import { ExamModule } from './exam/exam.module';
 
 @Module({
   imports: [
@@ -116,7 +117,8 @@ import { TypeVoice } from './type-voice/entities/type-voice.entity';
     QuestionModule,
     AnswerModule,
     VoiceModule,
-    TypeVoiceModule
+    TypeVoiceModule,
+    ExamModule
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -14,6 +14,8 @@ export class CreateVoiceDto {
     file?: Express.Multer.File
     
     link?: string
+
+     name?: string
     
     @ApiProperty()
     @IsString()

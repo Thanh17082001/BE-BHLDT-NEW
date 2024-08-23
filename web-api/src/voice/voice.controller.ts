@@ -23,8 +23,8 @@ export class VoiceController {
   @UseInterceptors(FileInterceptor('file'))
   create(@UploadedFile() file: Express.Multer.File, @Body() createVoiceDto: CreateVoiceDto) {
     let link: string = '';
-    let boolString = "true"; 
     if (file) {
+      const name: string = file.originalname; 
        const voicePath = path.join(__dirname,'..','..', '/public/voice', privateFileName(normalizeString(file.originalname)));
       fs.writeFileSync(voicePath, file.buffer);
       link = cutFilePath(voicePath, path.join(__dirname, '..', '..', '/public/'));
@@ -35,6 +35,7 @@ export class VoiceController {
         isGeneral: (/true/).test(createVoiceDto.isGeneral.toString()),
         typeVoiceId:+createVoiceDto.typeVoiceId,
         link: link,
+        name:name
       }
       return this.voiceService.create(data);
     }
@@ -65,7 +66,9 @@ export class VoiceController {
     const voice = await this.voiceService.findOne(+id)
     
      let link:string = '';
+     
     if (file) {
+      const name: string = file.originalname; 
        const voicePath = path.join(__dirname,'..','..', '/public/voice', privateFileName(normalizeString(file.originalname)));
       fs.writeFileSync(voicePath, file.buffer);
       link = cutFilePath(voicePath, path.join(__dirname, '..', '..', '/public/'));
@@ -75,19 +78,22 @@ export class VoiceController {
         isGeneral: (/true/).test(updateVoiceDto.isGeneral.toString()),
         typeVoiceId:+updateVoiceDto.typeVoiceId,
         link: link,
+        name:name
       }
       const voicePathOld = path.join(__dirname, '..', '..', '/public', voice.data?.link);
       fs.unlinkSync(voicePathOld);
-      return this.voiceService.update(+id, updateVoiceDto);
+      return this.voiceService.update(+id, data);
     }
-    // else {
-    //   return 'chưa có làm truyền text lên ă'
-    //   // const data: CreateVoiceDto = {
-    //   //   ...createVoiceDto,
-    //   //   link: ''
-    //   // }
-    //   // return this.voiceService.create(data);
-    // }
+    else {
+       const data: UpdateVoiceDto = {
+        fileId: +updateVoiceDto.fileId,
+        order: +updateVoiceDto.order,
+        isGeneral: (/true/).test(updateVoiceDto.isGeneral.toString()),
+        typeVoiceId:+updateVoiceDto.typeVoiceId,
+        link: voice.data.link,
+      }
+      return this.voiceService.update(+id, data);
+    }
     
   }
 

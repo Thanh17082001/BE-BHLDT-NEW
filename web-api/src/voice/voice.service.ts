@@ -16,6 +16,7 @@ export class VoiceService {
 
   constructor(
     @InjectRepository(Voice) private repo: Repository<Voice>,
+    @InjectRepository(TypeVoice) private repoTypeVoice: Repository<TypeVoice>,
   ) {
   }
    async create(createVoiceDto: CreateVoiceDto): Promise<Voice> {
@@ -39,14 +40,23 @@ export class VoiceService {
       queryBuilder.andWhere('voice.name LIKE :name', { name: `%${pageOptions.search}%` });
     }
 
-    queryBuilder.orderBy("voice.createdAt", pageOptions.order)
+    queryBuilder.orderBy("voice.order", 'ASC')
+      .addOrderBy("voice.createdAt", pageOptions.order)
     .skip(pageOptions.skip)
       .take(pageOptions.take);
       
       const itemCount = await queryBuilder.getCount();
       const pageMetaDto = new PageMetaDto({pageOptionsDto:pageOptions, itemCount });
     const entities = await queryBuilder.getMany();
-    
+     for (let i = 0; i < entities.length; i++){
+        const typeVoice:TypeVoice = await this.repoTypeVoice.findOne({
+            where: {
+             id:entities[i].typeVoiceId
+            }
+        });
+        (entities[i] as any).typeVoice = typeVoice;
+      }
+
 
     return new PageDto(entities, pageMetaDto);
     

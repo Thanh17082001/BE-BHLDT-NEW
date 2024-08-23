@@ -4,6 +4,8 @@ import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 
 @Entity()
 export class Voice extends AbstractEntity {
+   @Column({nullable:true})
+  name: string;
     @Column()
   fileId: number;
    @Column()
