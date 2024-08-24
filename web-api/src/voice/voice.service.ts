@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateVoiceDto } from './dto/create-voice.dto';
 import { UpdateVoiceDto } from './dto/update-voice.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -9,14 +9,18 @@ import { ItemDto, PageDto } from 'src/utils/dtos/page-dto';
 import { PageMetaDto } from 'src/utils/dtos/pagemeta-dto';
 import { difference } from 'src/utils/differeceArray';
 import { TypeVoice } from 'src/type-voice/entities/type-voice.entity';
-import e from 'express';
+import axios, { AxiosRequestConfig } from 'axios';
+import { EdenAiDto } from './dto/data-endenAi.dto';
 
 @Injectable()
 export class VoiceService {
+  private readonly apiUrl = 'https://api.edenai.run/v2/audio/text_to_speech';
+    private readonly apiKey = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiZGUwMWFkNmMtZGJkYS00NTU1LTk0NGMtZmI5MGIzOGUzNGM2IiwidHlwZSI6InNhbmRib3hfYXBpX3Rva2VuIn0.AF0iziH5T6QDVK6mIXo-UxEuft8c2v7gDEAvGGctIZY';
 
   constructor(
     @InjectRepository(Voice) private repo: Repository<Voice>,
     @InjectRepository(TypeVoice) private repoTypeVoice: Repository<TypeVoice>,
+   
   ) {
   }
    async create(createVoiceDto: CreateVoiceDto): Promise<Voice> {
@@ -97,5 +101,27 @@ export class VoiceService {
       throw new NotFoundException('voice not found');
     }
     return this.repo.remove(voice);
+  }
+
+  async convertTextToSpeech(data: EdenAiDto): Promise<any> {
+    const options: AxiosRequestConfig = {
+      method: 'POST',
+      url: this.apiUrl,
+      headers: {
+        authorization: this.apiKey,
+      },
+      data: data,
+    };
+
+    try {
+      const response = await axios.request(options);
+      return response.data;
+    } catch (error) {
+      console.log(error.message);
+      throw new HttpException(
+        'Error converting text to speech',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }

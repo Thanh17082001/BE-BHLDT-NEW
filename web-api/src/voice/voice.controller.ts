@@ -3,7 +3,7 @@ import { VoiceService } from './voice.service';
 import { CreateVoiceDto } from './dto/create-voice.dto';
 import { UpdateVoiceDto } from './dto/update-voice.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import * as fs from 'fs';
 import * as path from 'path';
 import { privateFileName } from 'src/utils/filename-private';
@@ -12,6 +12,8 @@ import { cutFilePath } from 'src/utils/cut-file-url';
 import { PageOptionsDto } from 'src/utils/dtos/pageoptions-dto';
 import { ItemDto, PageDto } from 'src/utils/dtos/page-dto';
 import { Voice } from './entities/voice.entity';
+import { EdenAiDto } from './dto/data-endenAi.dto';
+import { writeFile } from 'fs/promises';
 
 @Controller('voice')
   @ApiTags('voice')
@@ -100,5 +102,18 @@ export class VoiceController {
   @Delete(':id')
   remove(@Param('id') id: string) :Promise<Voice>{
     return this.voiceService.remove(+id);
+  }
+
+  @Post('covert-text-to-speech')
+  @ApiBody({
+    description: 'Text-to-Speech conversion with optional file',
+    type: EdenAiDto,
+  })
+  async convert(@Body() data: EdenAiDto) {
+    const audio = await this.voiceService.convertTextToSpeech(data);
+    const voicePath = path.join(__dirname, '..', '..', '/public/voice', privateFileName(normalizeString('audio.mp3')));
+    const link = cutFilePath(voicePath, path.join(__dirname, '..', '..', '/public/'));
+       fs.writeFileSync(voicePath, audio[data.providers].audio);
+    return link;
   }
 }
