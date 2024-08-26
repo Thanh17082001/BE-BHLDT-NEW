@@ -84,15 +84,18 @@ export class ExamService {
   }
   
 
-  async findOne(id: number): Promise<ItemDto<Exam>> {
+  async findOne(id: number) {
     const exam: Exam = await this.repo.findOne({
       where: {
         id:id
       },
       relations: ['questions']
     })
-
-     const typeQuestionMap = exam.questions.reduce((acc, question) => {
+    if(!exam){
+      throw new NotFoundException('exam does not exits!')
+    }
+    
+     const typeQuestionMap = exam?.questions.reduce((acc, question) => {
             const { typeQuestionId } = question;
             if (!acc[typeQuestionId]) {
                 acc[typeQuestionId] = [];
@@ -110,8 +113,10 @@ export class ExamService {
             ...exam,
                 MultipleChoiceScore,
                 EssayScore,
-        };
-    return new ItemDto (result)
+    };
+    
+    this.generateSubExams(result)
+    return new ItemDto (this.generateSubExams(result))
   }
 
   async update(id: number, updateExamDto: Partial<UpdateExamDto>): Promise<Exam> {
@@ -151,5 +156,28 @@ export class ExamService {
     }
     return await this.repo.remove(typeQuestion)
   }
+
+    generateSubExams(data) {
+    const { subExam, MultipleChoiceScore } = data;
+
+    // Tạo ra các đề con với thứ tự `MultipleChoiceScore` khác nhau
+    const subExams = Array.from({ length: subExam }, (_, index) => {
+        return {
+            ...data,  // Giữ nguyên cấu trúc dữ liệu ban đầu
+            subExamIndex: index + 1,
+            MultipleChoiceScore: this.shuffleArray([...MultipleChoiceScore])  // Trộn lại mảng `MultipleChoiceScore` cho mỗi đề con
+        };
+    });
+
+    return subExams;
+}
+// Hàm để trộn ngẫu nhiên một mảng
+ shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
 
 }

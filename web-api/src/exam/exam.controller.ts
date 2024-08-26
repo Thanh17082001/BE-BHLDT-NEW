@@ -28,7 +28,7 @@ export class ExamController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string) :Promise<ItemDto<Exam>> {
+  async findOne(@Param('id') id: string)  {
     return await this.examService.findOne(+id);
   }
 
