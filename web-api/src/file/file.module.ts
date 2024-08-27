@@ -11,7 +11,7 @@ import { FileTypeModule } from 'src/filetype/filetype.module';
 import { ImageModule } from 'src/image/image.module';
 import { VoiceModule } from 'src/voice/voice.module';
 @Module({
-  imports: [TypeOrmModule.forFeature([File]), TopicModule,SubjectModule,FileTypeModule, forwardRef(() => ImageModule),VoiceModule],
+  imports: [TypeOrmModule.forFeature([File]), TopicModule,forwardRef(() => SubjectModule),FileTypeModule, forwardRef(() => ImageModule),VoiceModule],
   controllers: [FileController],
   providers: [FileService],
   exports: [FileService, TypeOrmModule],

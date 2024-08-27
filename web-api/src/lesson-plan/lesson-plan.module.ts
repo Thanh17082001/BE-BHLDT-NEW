@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { LessonPlanService } from './lesson-plan.service';
 import { LessonPlanController } from './lesson-plan.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -9,8 +9,9 @@ import { CovertFileService } from 'src/covert-file/covert-file.service';
 import { SubjectModule } from 'src/subject/subject.module';
 
 @Module({
-  imports:[TypeOrmModule.forFeature([LessonPlan]), SubjectModule],
+  imports:[TypeOrmModule.forFeature([LessonPlan]),forwardRef(() => SubjectModule) ],
   controllers: [LessonPlanController],
   providers: [LessonPlanService, CovertFileService],
+  exports: [LessonPlanService, TypeOrmModule],
 })
 export class LessonPlanModule {}

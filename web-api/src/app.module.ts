@@ -58,17 +58,7 @@ import { ExamModule } from './exam/exam.module';
 
 @Module({
   imports: [
-    // ServeStaticModule.forRoot({
-    //   rootPath: 'C:/images', // Absolute path to the directory on C drive
-    //   serveRoot: '/images/', // Serve files under /images path
-    //   exclude: ['/api*'], // Exclude the /api path from static file serving
-    // }),
-    // MulterModule.register({
-    //   dest: '../client',
-    // }),
-    // ServeStaticModule.forRoot({
-    //   rootPath: join(__dirname, '', 'client'),
-    // }),
+   
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'static'),
     }),

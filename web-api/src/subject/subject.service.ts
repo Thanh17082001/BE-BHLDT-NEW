@@ -14,12 +14,16 @@ import { GradeService } from 'src/grade/grade.service';
 import { Grade } from 'src/grade/entities/grade.entity';
 import { difference } from 'src/utils/differeceArray';
 import { UpdateSubjectDto } from './dtos/update-subject.dto';
+import { File } from 'src/file/entities/file.entity';
+import { LessonPlan } from 'src/lesson-plan/entities/lesson-plan.entity';
 
 @Injectable()
 export class SubjectService {
   constructor(
     @InjectRepository(Subject) private repo: Repository<Subject>,
     @InjectRepository(Grade) private repoGrade: Repository<Grade>,
+    @InjectRepository(File) private repoFile: Repository<File>,
+    @InjectRepository(LessonPlan) private repoFLessonPlan: Repository<LessonPlan>,
     private gradeService: GradeService,
   ) {
   }
@@ -50,9 +54,8 @@ export class SubjectService {
    const queryBuilder = this.repo.createQueryBuilder('subject').leftJoinAndSelect('subject.grade', 'grade').leftJoinAndSelect('subject.topics', 'topic').where('subject.status = :status', { status: 1 }); 
     if (!!subjectQuery && Object.keys(subjectQuery).length > 0) {
       const arrayQuery = difference(Object.keys(pageOptionsDto), Object.keys(subjectQuery))
-      console.log(arrayQuery);
      arrayQuery.forEach((key) => {
-        if (key !== undefined && key !== null ) {
+        if (key !== undefined && key !== null && key !== 'topic' && key!='page' && key != 'take' && key != 'skip' && key != 'order' ) {
           queryBuilder.andWhere(`subject.${key} = :${key}`, { [key]: subjectQuery[key] });
         }
       });
@@ -69,7 +72,28 @@ export class SubjectService {
       const itemCount = await queryBuilder.getCount();
       const pageMetaDto = new PageMetaDto({pageOptionsDto:pageOptionsDto, itemCount });
     const  entities  = await queryBuilder.getMany();
-
+    for (let i = 0; i < entities.length; i++){
+      
+        const files:File[] = await this.repoFile.find({
+            where: {
+             subject_id:entities[i].id
+            }
+            
+            
+        });
+      
+      const lessonPlans:LessonPlan[] = await this.repoFLessonPlan.find({
+            where: {
+          subjectId: entities[i].id,
+              topic:subjectQuery.topic
+            }
+            
+            
+        });
+        
+        (entities[i] as any).quantityFile = files.length;
+        (entities[i] as any).quantityLessonPlan = lessonPlans.length;
+      }
     return new PageDto(entities, pageMetaDto);
   }
 
