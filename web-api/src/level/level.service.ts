@@ -45,7 +45,7 @@ export class LevelService {
     if (!!query && Object.keys(query).length > 0) {
       const arrayQuery = difference(Object.keys(pageOptions), Object.keys(query))
      arrayQuery.forEach((key) => {
-        if (key !== undefined && key !== null ) {
+        if (key !== undefined && key !== null && key!='page' && key != 'take' && key != 'skip' && key != 'order') {
           queryBuilder.andWhere(`level.${key} = :${key}`, { [key]: query[key] });
         }
       });
