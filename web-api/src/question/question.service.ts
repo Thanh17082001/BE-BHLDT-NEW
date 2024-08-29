@@ -9,11 +9,18 @@ import { PageOptionsDto } from 'src/utils/dtos/pageoptions-dto';
 import { difference } from 'src/utils/differeceArray';
 import { ItemDto, PageDto } from 'src/utils/dtos/page-dto';
 import { PageMetaDto } from 'src/utils/dtos/pagemeta-dto';
+import { TypeQuestion } from 'src/type-question/entities/type-question.entity';
+import { Topic } from 'src/topic/entities/topic.entity';
+import { Level } from 'src/level/entities/level.entity';
+import { CLIENT_RENEG_LIMIT } from 'tls';
 
 @Injectable()
 export class QuestionService {
   constructor(
     @InjectRepository(Question) private repo: Repository<Question>,
+    @InjectRepository(TypeQuestion) private repoTypeQuestion: Repository<TypeQuestion>,
+    @InjectRepository(Topic) private repoTopic: Repository<Topic>,
+    @InjectRepository(Level) private repoLevel: Repository<Level>,
       private readonly answerService:AnswerService,
   ) {
   }
@@ -56,7 +63,27 @@ export class QuestionService {
     const itemCount = await queryBuilder.getCount();
     const pageMetaDto = new PageMetaDto({ pageOptionsDto: pageOptions, itemCount });
     const entities = await queryBuilder.getMany();
-
+    for (let i = 0; i < entities.length; i++){
+        const typeQuestion:TypeQuestion = await this.repoTypeQuestion.findOne({
+            where: {
+             id:entities[i].typeQuestionId
+            }
+        });
+      
+       const level:Level = await this.repoLevel.findOne({
+            where: {
+             id:entities[i].levelId
+            }
+        });
+        const topic:Topic = await this.repoTopic.findOne({
+            where: {
+             id:entities[i].topicId
+            }
+        });
+        (entities[i] as any).typeQuestion = typeQuestion;
+        (entities[i] as any).topic = topic;
+        (entities[i] as any).level = level;
+      }
     return new PageDto(entities, pageMetaDto);
 
   }
@@ -81,7 +108,7 @@ export class QuestionService {
     const answers = updateQuetion.answers;
     const answerUpdated =[]
     for (let i = 0; i < answers.length; i++){
-      answerUpdated.push(await this.answerService.update(+question.answers[i].id,answers[i]));
+      answerUpdated.push(await this.answerService.update(+question.answers[i]?.id || -1,answers[i]));
     }
     if (!question) {
       throw new NotFoundException('question not found');

@@ -5,9 +5,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Question } from './entities/question.entity';
 import { AnswerModule } from 'src/answer/answer.module';
 import { AnswerService } from 'src/answer/answer.service';
+import { LevelModule } from 'src/level/level.module';
+import { TopicModule } from 'src/topic/topic.module';
+import { TypeQuestionModule } from 'src/type-question/type-question.module';
 
 @Module({
-  imports:[TypeOrmModule.forFeature([Question]), AnswerModule],
+  imports:[TypeOrmModule.forFeature([Question]), AnswerModule, LevelModule, TopicModule, TypeQuestionModule ],
   controllers: [QuestionController],
   providers: [QuestionService, AnswerService],
   exports:[TypeOrmModule]

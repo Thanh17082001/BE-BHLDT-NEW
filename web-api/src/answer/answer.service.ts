@@ -65,11 +65,16 @@ export class AnswerService {
   }
 
   async update(id: number, updateTypeScore: Partial<UpdateAnswerDto>): Promise<Answer> {
-    const answer: Answer = await this.repo.findOne({
+    let answer: Answer = await this.repo.findOne({
       where: {
         id:id
       }
     });
+
+      if (!answer) {
+        // Tạo một bản ghi mới nếu không tìm thấy
+        answer = this.repo.create({ ...updateTypeScore }); // Khởi tạo với dữ liệu mới
+    }
    
      const data = this.repo.merge(
       answer,
