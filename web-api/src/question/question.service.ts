@@ -53,7 +53,7 @@ export class QuestionService {
       });
     }
     if (pageOptions.search) {
-      queryBuilder.andWhere('question.name LIKE :name', { name: `%${pageOptions.search}%` });
+      queryBuilder.andWhere('question.content LIKE :content', { content: `%${pageOptions.search}%` });
     }
 
     queryBuilder.orderBy("question.createdAt", pageOptions.order)
