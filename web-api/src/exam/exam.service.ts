@@ -9,12 +9,16 @@ import { ItemDto, PageDto } from 'src/utils/dtos/page-dto';
 import { difference } from 'src/utils/differeceArray';
 import { Question } from 'src/question/entities/question.entity';
 import { PageMetaDto } from 'src/utils/dtos/pagemeta-dto';
+import { Topic } from 'src/topic/entities/topic.entity';
+import { Level } from 'src/level/entities/level.entity';
 
 @Injectable()
 export class ExamService {
   constructor(
     @InjectRepository(Exam) private repo: Repository<Exam>,
     @InjectRepository(Question) private questionRepository: Repository<Question>,
+    @InjectRepository(Topic) private topicReponsitory: Repository<Topic>,
+    @InjectRepository(Level) private levelRepository: Repository<Level>,
   ) {
   }
   async create(createExamDto: CreateExamDto): Promise<Exam> {
@@ -58,6 +62,8 @@ export class ExamService {
       const pageMetaDto = new PageMetaDto({pageOptionsDto:pageOptions, itemCount });
     const entities = await queryBuilder.getMany();
 
+    
+
      const categorizedExams = entities.map(exam => {
        const typeQuestionMap = exam.questions.reduce((acc, question) => {
                 const { typeQuestionId } = question;
@@ -71,14 +77,26 @@ export class ExamService {
             // Tạo hai mảng cho các loại câu hỏi dựa trên typeQuestionId
             const MultipleChoiceScore = typeQuestionMap[1] || [];
             const EssayScore = typeQuestionMap[2] || [];
-
+        
             return {
                 ...exam,
                 MultipleChoiceScore,
                 EssayScore,
             };
-        });
+     });
+    
+    
+    for (let i = 0; i < categorizedExams?.length; i++){
+      for (let j = 0; j < categorizedExams[i].MultipleChoiceScore?.length; j++){
+         const questions  =categorizedExams[i].MultipleChoiceScore
+        const level: Level = await this.levelRepository.findOne({ where: { id: questions[j].levelId } });
+        const topic: Topic = await this.topicReponsitory.findOne({ where: { id: questions[j].topicId } });
 
+        (categorizedExams[i].MultipleChoiceScore[j] as any).level = level;
+        (categorizedExams[i].MultipleChoiceScore[j] as any).topic = topic;
+        
+      }
+    }
     return new PageDto(categorizedExams, pageMetaDto);
     
   }
@@ -172,7 +190,7 @@ export class ExamService {
     return subExams;
 }
 // Hàm để trộn ngẫu nhiên một mảng
- shuffleArray(array) {
+ shuffleArray(array:any[]) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [array[i], array[j]] = [array[j], array[i]];
