@@ -11,6 +11,8 @@ import { Question } from 'src/question/entities/question.entity';
 import { PageMetaDto } from 'src/utils/dtos/pagemeta-dto';
 import { Topic } from 'src/topic/entities/topic.entity';
 import { Level } from 'src/level/entities/level.entity';
+import { CLIENT_RENEG_LIMIT } from 'tls';
+import { QuestionService } from 'src/question/question.service';
 
 @Injectable()
 export class ExamService {
@@ -138,11 +140,19 @@ export class ExamService {
   }
 
   async update(id: number, updateExamDto: Partial<UpdateExamDto>): Promise<Exam> {
-    const typeQuestion: Exam = await this.repo.findOne({
+    
+    const exam: Exam = await this.repo.findOne({
       where: {
         id:id
       }
     });
+
+    const questionIds = updateExamDto.questionIds
+    let questions=[]
+    for (let i = 0; i < questionIds.length; i++){
+      const question: Question= await this.questionRepository.findOne({where:{id:questionIds[i]}})
+      questions.push(question)
+    }
     const exits = await this.repo.findOne({
       where: {
         name:updateExamDto.name,
@@ -153,26 +163,27 @@ export class ExamService {
     if (exits) {
       throw new BadRequestException('exam is already!')
     }
-    if (!typeQuestion) {
+    if (!exam) {
       throw new NotFoundException('exam does not exits!');
     }
+    exam.questions=questions
      const data = this.repo.merge(
-      typeQuestion,
+      exam,
       updateExamDto,
     );
     return await this.repo.save(data);
   }
 
   async remove(id: number):Promise<Exam> {
-    const typeQuestion: Exam = await this.repo.findOne({
+    const exam: Exam = await this.repo.findOne({
       where: {
         id:id
       }
     });
-    if (!typeQuestion) {
+    if (!exam) {
       throw new NotFoundException('Exam does not exits!');
     }
-    return await this.repo.remove(typeQuestion)
+    return await this.repo.remove(exam)
   }
 
     generateSubExams(data) {
