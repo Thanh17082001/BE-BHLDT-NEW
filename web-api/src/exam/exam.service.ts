@@ -26,10 +26,10 @@ export class ExamService {
   async create(createExamDto: CreateExamDto): Promise<Exam> {
 
     const { name, subjectId, time, subExam, totalMultipleChoiceScore, totalEssayScore, questionIds } = createExamDto;
-     const questions:Question[] = await this.questionRepository.findByIds(questionIds);
+    const questions: Question[] = await this.questionRepository.findByIds(questionIds);
     const exits = await this.repo.findOne({
       where: {
-        name:createExamDto.name,
+        name: createExamDto.name,
       }
     })
 
@@ -37,127 +37,127 @@ export class ExamService {
       throw new BadRequestException('exam is already!')
     }
 
-    return await this.repo.save({name, subjectId, time, subExam, totalMultipleChoiceScore, totalEssayScore,questions});
+    return await this.repo.save({ name, subjectId, time, subExam, totalMultipleChoiceScore, totalEssayScore, questions });
   }
 
-  
-  async findAll( pageOptions : PageOptionsDto, query: Partial<Exam>): Promise<PageDto<Exam>> {
-    const queryBuilder = this.repo.createQueryBuilder('exam').where('exam.status = :status', { status: 1 }).leftJoinAndSelect('exam.questions', 'question'); 
+
+  async findAll(pageOptions: PageOptionsDto, query: Partial<Exam>): Promise<PageDto<Exam>> {
+    const queryBuilder = this.repo.createQueryBuilder('exam').where('exam.status = :status', { status: 1 }).leftJoinAndSelect('exam.questions', 'question');
     if (!!query && Object.keys(query).length > 0) {
       const arrayQuery = difference(Object.keys(pageOptions), Object.keys(query))
-     arrayQuery.forEach((key) => {
-        if (key !== undefined && key !== null && key!='page' && key != 'take' && key != 'skip' && key != 'order' ) {
+      arrayQuery.forEach((key) => {
+        if (key !== undefined && key !== null && key != 'page' && key != 'take' && key != 'skip' && key != 'order') {
           queryBuilder.andWhere(`exam.${key} = :${key}`, { [key]: query[key] });
         }
       });
     }
 
-     if (pageOptions.search) {
+    if (pageOptions.search) {
       queryBuilder.andWhere('exam.name LIKE :name', { name: `%${pageOptions.search}%` });
     }
 
     queryBuilder.orderBy("exam.createdAt", pageOptions.order)
-    .skip(pageOptions.skip)
+      .skip(pageOptions.skip)
       .take(pageOptions.take);
-      
-      const itemCount = await queryBuilder.getCount();
-      const pageMetaDto = new PageMetaDto({pageOptionsDto:pageOptions, itemCount });
+
+    const itemCount = await queryBuilder.getCount();
+    const pageMetaDto = new PageMetaDto({ pageOptionsDto: pageOptions, itemCount });
     const entities = await queryBuilder.getMany();
 
-    
 
-     const categorizedExams = entities.map(exam => {
-       const typeQuestionMap = exam.questions.reduce((acc, question) => {
-                const { typeQuestionId } = question;
-         if (!acc[typeQuestionId]) {
-                    acc[typeQuestionId] = [];
-                }
-                acc[typeQuestionId].push(question);
-                return acc;
-       }, {});
 
-            // Tạo hai mảng cho các loại câu hỏi dựa trên typeQuestionId
-            const MultipleChoiceScore = typeQuestionMap[1] || [];
-            const EssayScore = typeQuestionMap[2] || [];
-        
-            return {
-                ...exam,
-                MultipleChoiceScore,
-                EssayScore,
-            };
-     });
-    
-    
-    for (let i = 0; i < categorizedExams?.length; i++){
-      for (let j = 0; j < categorizedExams[i].MultipleChoiceScore?.length; j++){
-         const questions  =categorizedExams[i].MultipleChoiceScore
+    const categorizedExams = entities.map(exam => {
+      const typeQuestionMap = exam.questions.reduce((acc, question) => {
+        const { typeQuestionId } = question;
+        if (!acc[typeQuestionId]) {
+          acc[typeQuestionId] = [];
+        }
+        acc[typeQuestionId].push(question);
+        return acc;
+      }, {});
+
+      // Tạo hai mảng cho các loại câu hỏi dựa trên typeQuestionId
+      const MultipleChoiceScore = typeQuestionMap[1] || [];
+      const EssayScore = typeQuestionMap[2] || [];
+
+      return {
+        ...exam,
+        MultipleChoiceScore,
+        EssayScore,
+      };
+    });
+
+
+    for (let i = 0; i < categorizedExams?.length; i++) {
+      for (let j = 0; j < categorizedExams[i].MultipleChoiceScore?.length; j++) {
+        const questions = categorizedExams[i].MultipleChoiceScore
         const level: Level = await this.levelRepository.findOne({ where: { id: questions[j].levelId } });
         const topic: Topic = await this.topicReponsitory.findOne({ where: { id: questions[j].topicId } });
 
         (categorizedExams[i].MultipleChoiceScore[j] as any).level = level;
         (categorizedExams[i].MultipleChoiceScore[j] as any).topic = topic;
-        
+
       }
     }
     return new PageDto(categorizedExams, pageMetaDto);
-    
+
   }
-  
+
 
   async findOne(id: number) {
     const exam: Exam = await this.repo.findOne({
       where: {
-        id:id
+        id: id
       },
       relations: ['questions']
     })
-    if(!exam){
+    if (!exam) {
       throw new NotFoundException('exam does not exits!')
     }
-    
-     const typeQuestionMap = exam?.questions.reduce((acc, question) => {
-            const { typeQuestionId } = question;
-            if (!acc[typeQuestionId]) {
-                acc[typeQuestionId] = [];
-            }
-            acc[typeQuestionId].push(question);
-            return acc;
-        }, {});
 
-        // Tạo các mảng cho các loại câu hỏi dựa trên typeQuestionId
-        const MultipleChoiceScore = typeQuestionMap[1] || [];
-            const EssayScore = typeQuestionMap[2] || [];
+    const typeQuestionMap = exam?.questions.reduce((acc, question) => {
+      const { typeQuestionId } = question;
+      if (!acc[typeQuestionId]) {
+        acc[typeQuestionId] = [];
+      }
+      acc[typeQuestionId].push(question);
+      return acc;
+    }, {});
 
-        // Tạo đối tượng kết quả
-        const result = {
-            ...exam,
-                MultipleChoiceScore,
-                EssayScore,
+    // Tạo các mảng cho các loại câu hỏi dựa trên typeQuestionId
+    const MultipleChoiceScore = typeQuestionMap[1] || [];
+    const EssayScore = typeQuestionMap[2] || [];
+
+    // Tạo đối tượng kết quả
+    const result = {
+      ...exam,
+      MultipleChoiceScore,
+      EssayScore,
     };
-    
+
     this.generateSubExams(result)
-    return new ItemDto (this.generateSubExams(result))
+    return new ItemDto(this.generateSubExams(result))
   }
 
   async update(id: number, updateExamDto: Partial<UpdateExamDto>): Promise<Exam> {
-    
+
     const exam: Exam = await this.repo.findOne({
       where: {
-        id:id
+        id: id
       }
     });
 
     const questionIds = updateExamDto.questionIds
-    let questions=[]
-    for (let i = 0; i < questionIds.length; i++){
-      const question: Question= await this.questionRepository.findOne({where:{id:questionIds[i]}})
+    let questions = []
+    for (let i = 0; i < questionIds.length; i++) {
+      const question: Question = await this.questionRepository.findOne({ where: { id: questionIds[i] } })
       questions.push(question)
     }
     const exits = await this.repo.findOne({
       where: {
-        name:updateExamDto.name,
+        name: updateExamDto.name,
         id: Not(id),
-        status:1
+        status: 1
       }
     })
     if (exits) {
@@ -166,18 +166,18 @@ export class ExamService {
     if (!exam) {
       throw new NotFoundException('exam does not exits!');
     }
-    exam.questions=questions
-     const data = this.repo.merge(
+    exam.questions = questions
+    const data = this.repo.merge(
       exam,
       updateExamDto,
     );
     return await this.repo.save(data);
   }
 
-  async remove(id: number):Promise<Exam> {
+  async remove(id: number): Promise<Exam> {
     const exam: Exam = await this.repo.findOne({
       where: {
-        id:id
+        id: id
       }
     });
     if (!exam) {
@@ -186,27 +186,27 @@ export class ExamService {
     return await this.repo.remove(exam)
   }
 
-    generateSubExams(data) {
+  generateSubExams(data) {
     const { subExam, MultipleChoiceScore } = data;
 
     // Tạo ra các đề con với thứ tự `MultipleChoiceScore` khác nhau
-    const subExams = Array.from({ length: subExam }, (_, index) => {
-        return {
-            ...data,  // Giữ nguyên cấu trúc dữ liệu ban đầu
-            subExamIndex: index + 1,
-            MultipleChoiceScore: this.shuffleArray([...MultipleChoiceScore])  // Trộn lại mảng `MultipleChoiceScore` cho mỗi đề con
-        };
+    const subExams = Array.from({ length: subExam + 1 }, (_, index) => {
+      return {
+        ...data,  // Giữ nguyên cấu trúc dữ liệu ban đầu
+        subExamIndex: index,
+        MultipleChoiceScore: this.shuffleArray([...MultipleChoiceScore])  // Trộn lại mảng `MultipleChoiceScore` cho mỗi đề con
+      };
     });
 
     return subExams;
-}
-// Hàm để trộn ngẫu nhiên một mảng
- shuffleArray(array:any[]) {
+  }
+  // Hàm để trộn ngẫu nhiên một mảng
+  shuffleArray(array: any[]) {
     for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
     }
     return array;
-}
+  }
 
 }
