@@ -142,7 +142,29 @@ export class FileController {
 
  
    @Delete(':id')
-  removeGrade(@Param('id') id: number) {
-    return this.fileService.remove(+id);
+   async removeGrade(@Param('id') id: number) {
+     const file = await this.fileService.remove(+id)
+     if (!file.isFolder) {
+       const pathOld = path.join(__dirname, '..', '..', '/public', file?.path);
+       const pathPrivew = path.join(__dirname, '..', '..', '/public', file?.previewImage);   
+       console.log(pathOld);
+       console.log(pathPrivew);
+       
+       fs.unlinkSync(pathOld);
+       if (fs.existsSync(pathPrivew)) {
+         
+         fs.unlinkSync(pathPrivew);
+       }
+       if (file.images.length > 0) {
+         const images = file.images;
+         for (let i = 0; i < images.length; i++){
+          
+            const pathOldImage = path.join(__dirname, '..', '..', '/public', images[i].path);
+           fs.unlinkSync(pathOldImage);
+           
+         }
+       }
+     }
+    return file;
   }
 }

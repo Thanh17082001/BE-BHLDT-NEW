@@ -35,6 +35,7 @@ import * as pdfPoppler from 'pdf-poppler';
 import { TypeVoice } from 'src/type-voice/entities/type-voice.entity';
 import { Voice } from 'src/voice/entities/voice.entity';
 
+
 @Injectable()
 export class FileService {
   constructor(
@@ -326,17 +327,28 @@ export class FileService {
   }
 
   async remove(id: number) {
-    const fileType = await this.repo.findOne({
+    const file = await this.repo.findOne({
       where: {
         id: id,
         status:1
-      }
+      },
+      relations:['images']
     })
-    if (!fileType) {
+    console.log(file);
+    
+    if (!file) {
       throw new NotFoundException('file not found');
     }
-    return this.repo.remove(fileType);
+   
+    
+    const remove = await this.repo.remove(file)
+    console.log(remove);
+    
+    return remove;
   }
+
+
+
   findOneFileNameByComponentFileType(name: string, topic_id: number) {
     return this.repo.findOneBy({ name, topic_id });
   }
