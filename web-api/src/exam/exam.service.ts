@@ -13,6 +13,7 @@ import { Topic } from 'src/topic/entities/topic.entity';
 import { Level } from 'src/level/entities/level.entity';
 import { CLIENT_RENEG_LIMIT } from 'tls';
 import { QuestionService } from 'src/question/question.service';
+import { Subject } from 'src/subject/entities/subject.entity';
 
 @Injectable()
 export class ExamService {
@@ -21,6 +22,7 @@ export class ExamService {
     @InjectRepository(Question) private questionRepository: Repository<Question>,
     @InjectRepository(Topic) private topicReponsitory: Repository<Topic>,
     @InjectRepository(Level) private levelRepository: Repository<Level>,
+    @InjectRepository(Subject) private subjectRepository: Repository<Subject>,
   ) {
   }
   async create(createExamDto: CreateExamDto): Promise<Exam> {
@@ -110,10 +112,12 @@ export class ExamService {
         id: id
       },
       relations: ['questions']
-    })
+    });
+      (exam as any).subject = await this.subjectRepository.findOne({ where: { id: exam.subjectId } })
     if (!exam) {
       throw new NotFoundException('exam does not exits!')
     }
+
 
     const typeQuestionMap = exam?.questions.reduce((acc, question) => {
       const { typeQuestionId } = question;

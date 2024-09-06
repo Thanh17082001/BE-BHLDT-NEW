@@ -70,6 +70,7 @@ export class StudentService {
       const itemCount = await queryBuilder.getCount();
       const pageMetaDto = new PageMetaDto({pageOptionsDto:pageOptions, itemCount });
     const entities = await queryBuilder.getMany();
+    // cả năm
     if (!queryScore.typeScoreId) {
       const typeScopes = await this.repoTypeScore.find()
       for (let i = 0; i < entities.length; i++){
@@ -101,6 +102,7 @@ export class StudentService {
         (entities[i] as any).totalAVG = totalAVG || 0 ;
       }
     }
+    // từng học kỳ
     else {
       for (let i = 0; i < entities.length; i++){
         const scores:Score[] = await this.scoreRepository.find({

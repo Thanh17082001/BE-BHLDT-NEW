@@ -8,6 +8,7 @@ import { PageOptionsDto } from 'src/utils/dtos/pageoptions-dto';
 import { ApiTags } from '@nestjs/swagger';
 import { StudentService } from 'src/student/student.service';
 import { QueryScore } from './dto/query-student.dto';
+import { StatisticalDto } from './dto/statistical-dto';
 
 @Controller('score')
 @ApiTags('score')
@@ -30,10 +31,10 @@ export class ScoreController {
     return this.typeScoreService.findAll(pageOptionDto,query);
   }
 
-  // @Get()
-  // findAll(@Query() query: Partial<Score>, @Query() pageOptionDto: PageOptionsDto, @Query() queryScore:QueryScore) {
-  //   return this.typeScoreService.findAll2(pageOptionDto,query, queryScore);
-  // }
+  @Get('statistical')
+  statistical(@Query() statisticalDto: StatisticalDto) {
+    return this.typeScoreService.statistical(statisticalDto);
+  }
 
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<ItemDto<Score>> {

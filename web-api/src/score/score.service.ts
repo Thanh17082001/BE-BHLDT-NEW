@@ -15,6 +15,10 @@ import { SchoolYear } from 'src/school-year/entities/school-year.entity';
 import { Class } from 'src/class/entities/class.entity';
 import { TypeScore } from 'src/type-score/entities/type-score.entity';
 import { QueryScore } from './dto/query-student.dto';
+import { StatisticalDto } from './dto/statistical-dto';
+import { calculateStatistics } from 'src/utils/statictical';
+import { promises } from 'dns';
+import { scoreAverageStatistical } from 'src/utils/score-avg';
 
 
 @Injectable()
@@ -92,6 +96,82 @@ export class TypeScoreService {
     return new PageDto(entities, pageMetaDto);
 
   }
+
+  async statistical(statisticalDto: StatisticalDto) {
+    let data: any[] = []
+    // hàm lấy ra danh sách điểm nhóm theo học sinh và loại điểm(HK1, HK2)
+    const result = await this.selectStatistical(statisticalDto)
+
+    //thống kê cả năm
+    if (!statisticalDto.typeScoreId || +statisticalDto.typeScoreId === 0) {
+      //tạo ra object từng học sinh với mảng điểm của học sinh đó
+      const groupedByStudentId = result.reduce((acc, item) => {
+        // Nếu chưa có nhóm cho studentId, tạo mới
+        if (!acc[item.studentId]) {
+          acc[item.studentId] = {
+            studentId: item.studentId,
+            scores: []
+          };
+        }
+
+        // Thêm thông tin vào mảng scores
+        acc[item.studentId].scores.push(item);
+        return acc;
+      }, {});
+
+      // chỉ lấy giá trị của object trên và tính tổng trung bình cả năm
+       data = Object.values(groupedByStudentId);
+      for (let i = 0; i < data.length; i++){
+        data[i].avgEntire = scoreAverageStatistical(data[i]?.scores)
+      }
+    }
+    
+    // thống kê từng học kỳ
+    else {
+      data = result.filter(item => item.typeScoreId === +statisticalDto.typeScoreId)
+    }
+
+  
+    
+    const statistical = calculateStatistics(data);
+    return {
+      data,
+      statistical
+    };
+
+  }
+
+  async selectStatistical(statisticalDto: StatisticalDto):Promise<any[]> {
+    const queryBuilder = this.repo.createQueryBuilder('score')
+
+    const result = await queryBuilder
+      .select('score.studentId', 'studentId')  // Select the studentId
+      .addSelect('score.typeScoreId', 'typeScoreId')
+      .addSelect('SUM(score.score * score.coefficient)', 'totalScore')// Calculate the weighted average and round to 1 decimal place
+      .addSelect('SUM( score.coefficient)', 'TotalCoefficient')// Calculate the weighted average and round to 1 decimal place
+      .where('score.classId = :classId', { classId: +statisticalDto.classId })
+      .andWhere('score.schoolYearId = :schoolYearId', { schoolYearId: +statisticalDto.schoolYearId })
+      // .andWhere('score.typeScoreId = :typeScoreId', { typeScoreId: +statisticalDto.typeScoreId })
+      .groupBy('score.studentId')  // Group by studentId
+      .addGroupBy('score.typeScoreId') 
+      // .orderBy('score.typeScoreId', 'ASC') 
+      .getRawMany();
+    
+    // const typeScores = await this.repoTypeScore.find();
+    // const indexTypeScoreId = typeScores.findIndex((item) => item.id === +statisticalDto.typeScoreId);
+    
+    for (let i = 0; i < result.length; i++) {
+      const avg = result[i].totalScore / result[i].TotalCoefficient;
+      result[i].avg = +avg.toFixed(2)
+
+      const typeScores = await this.repoTypeScore.findOne({where:{id:+result[i].typeScoreId}});
+      result[i].typeSCoreCoefficient = typeScores.coefficient
+      result[i].typeSCoreName = typeScores.name
+    }
+    return result
+  }
+
+
 
 
 
