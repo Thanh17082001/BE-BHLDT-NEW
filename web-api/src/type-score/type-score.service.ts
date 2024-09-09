@@ -21,7 +21,6 @@ export class TypeScoreService {
         name:createTypeQuestionDto.name,
       }
     })
-    console.log(createTypeQuestionDto.coefficient);
 
     return await this.repo.save(createTypeQuestionDto);
   }

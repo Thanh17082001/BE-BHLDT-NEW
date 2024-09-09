@@ -55,6 +55,8 @@ import { VoiceModule } from './voice/voice.module';
 import { TypeVoiceModule } from './type-voice/type-voice.module';
 import { TypeVoice } from './type-voice/entities/type-voice.entity';
 import { ExamModule } from './exam/exam.module';
+import { GameModule } from './game/game.module';
+import { GameQuestionModule } from './game-question/game-question.module';
 
 @Module({
   imports: [
@@ -108,7 +110,9 @@ import { ExamModule } from './exam/exam.module';
     AnswerModule,
     VoiceModule,
     TypeVoiceModule,
-    ExamModule
+    ExamModule,
+    GameModule,
+    GameQuestionModule
   ],
   controllers: [AppController],
   providers: [AppService],

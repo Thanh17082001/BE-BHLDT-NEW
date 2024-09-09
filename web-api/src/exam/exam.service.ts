@@ -111,7 +111,7 @@ export class ExamService {
       where: {
         id: id
       },
-      relations: ['questions']
+      relations: ['questions', 'questions.answers']
     });
       (exam as any).subject = await this.subjectRepository.findOne({ where: { id: exam.subjectId } })
     if (!exam) {
