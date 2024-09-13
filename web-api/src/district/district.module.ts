@@ -5,8 +5,9 @@ import { District } from './entities/district.entity';
 
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { HttpModule } from '@nestjs/axios';
+import { ProvinceModule } from 'src/province/province.module';
 @Module({
-  imports: [TypeOrmModule.forFeature([District]), HttpModule],
+  imports: [TypeOrmModule.forFeature([District]), HttpModule, ProvinceModule],
   controllers: [DistrictController],
   providers: [DistrictService],
   exports: [DistrictService],

@@ -49,11 +49,12 @@ export class StudentService {
 
 
   async findAll(pageOptions: PageOptionsDto, querySchol: Partial<Student>, queryScore: QueryDto): Promise<PageDto<Student>> {
-    const queryBuilder = this.repo.createQueryBuilder('student').leftJoinAndSelect('student.profile', 'profile')
+    const queryBuilder = this.repo.createQueryBuilder('student').leftJoinAndSelect('student.profile', 'profile');
+    const pagination = ['page', 'take', 'skip', 'order'];
     if (!!querySchol && Object.keys(querySchol).length > 0) {
       const arrayQuery = difference(Object.keys(pageOptions), Object.keys(querySchol))
       arrayQuery.forEach((key) => {
-        if (key !== undefined && key !== null ) {
+        if (key !== undefined && key !== null && !pagination.includes(key)) {
           queryBuilder.andWhere(`student.${key} = :${key}`, { [key]: querySchol[key] });
         }
       });
@@ -64,6 +65,7 @@ export class StudentService {
     }
 
     queryBuilder.orderBy("student.createdAt", pageOptions.order)
+    .addOrderBy("profile.fullname", "ASC")
     .skip(pageOptions.skip)
       .take(pageOptions.take);
       

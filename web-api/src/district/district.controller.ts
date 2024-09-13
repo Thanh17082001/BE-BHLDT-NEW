@@ -40,7 +40,7 @@ export class DistrictController {
 
     const responseProvice = await this.httpService.get('https://vapi.vnappmob.com/api/province').toPromise()
     const provinces = responseProvice.data.results;
-    const arrIdProvice:Array<number> = provinces.map(item => Number(item.province_id))
+    const arrIdProvice:Array<number> = provinces.map(item => item.province_id)
     for (let i = 0; i < arrIdProvice.length; i++){
       const resDistricts = await this.httpService.get(`https://vapi.vnappmob.com/api/province/district/${arrIdProvice[i]}`).toPromise()
       const districts = resDistricts.data.results

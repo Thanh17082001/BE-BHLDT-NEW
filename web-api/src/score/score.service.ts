@@ -131,8 +131,6 @@ export class TypeScoreService {
       data = result.filter(item => item.typeScoreId === +statisticalDto.typeScoreId)
     }
 
-  
-    
     const statistical = calculateStatistics(data);
     return {
       data,
@@ -157,9 +155,7 @@ export class TypeScoreService {
       // .orderBy('score.typeScoreId', 'ASC') 
       .getRawMany();
     
-    // const typeScores = await this.repoTypeScore.find();
-    // const indexTypeScoreId = typeScores.findIndex((item) => item.id === +statisticalDto.typeScoreId);
-    
+
     for (let i = 0; i < result.length; i++) {
       const avg = result[i].totalScore / result[i].TotalCoefficient;
       result[i].avg = +avg.toFixed(2)

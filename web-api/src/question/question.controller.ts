@@ -6,6 +6,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { Question } from './entities/question.entity';
 import { PageOptionsDto } from 'src/utils/dtos/pageoptions-dto';
 import { ItemDto, PageDto } from 'src/utils/dtos/page-dto';
+import { RandomQuestionDto } from './dto/randoom-question.dto';
 
 @Controller('question')
 @ApiTags('question')
@@ -24,6 +25,11 @@ export class QuestionController {
   @Get()
   findAll(@Query() query: Partial<Question>, @Query() pageOptionDto: PageOptionsDto):Promise<PageDto<Question>> {
     return this.questionService.findAll(pageOptionDto,query);
+  }
+
+  @Post('/random')
+  getRandomItems(@Body() randomqestTionDto: RandomQuestionDto): Promise<Array<Question>> {
+    return this.questionService.getRandomItems(randomqestTionDto);
   }
 
   @Get(':id')

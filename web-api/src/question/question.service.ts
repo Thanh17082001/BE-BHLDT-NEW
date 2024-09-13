@@ -13,6 +13,7 @@ import { TypeQuestion } from 'src/type-question/entities/type-question.entity';
 import { Topic } from 'src/topic/entities/topic.entity';
 import { Level } from 'src/level/entities/level.entity';
 import { CLIENT_RENEG_LIMIT } from 'tls';
+import { RandomQuestionDto } from './dto/randoom-question.dto';
 
 @Injectable()
 export class QuestionService {
@@ -133,4 +134,25 @@ export class QuestionService {
     // Delete the question, related classes will be deleted automatically due to cascade
     return await this.repo.remove(question)
   }
+
+  async getRandomItems(randomqestTionDto: RandomQuestionDto): Promise<Question[]> {
+
+    const levels = randomqestTionDto.levels
+    const result = []
+    for (let i = 0; i < levels.length; i++){
+      const level=levels[i]
+      const count = level.count
+      const data = await this.repo
+        .createQueryBuilder('question')
+        .orderBy('RANDOM()') // Sử dụng RANDOM() nếu bạn dùng PostgreSQL hoặc SQLite
+        .limit(count)
+        .where('question.subjectId = :subjectId', { subjectId: randomqestTionDto.subjectId })
+        .andWhere('question.topicId = :topicId', { topicId: randomqestTionDto.topicId })
+        .andWhere('question.typeQuestionId = :typeQuestionId', { typeQuestionId: randomqestTionDto.typeQuestionId })
+        .andWhere('question.levelId = :levelId', { levelId: level.levelId })
+        .getMany();
+      result.push(...data)
+      }
+      return result
+    }
 }

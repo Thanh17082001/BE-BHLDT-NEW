@@ -25,6 +25,9 @@ export class ProvinceService {
     const supplierEntity = await this.repo.save(supplier);
     return supplierEntity;
   }
+  async findAll(): Promise<Array<ProvinceDto>>{
+    return await this.repo.find()
+  }
 
   async find(supplierQuery: QueryProvinceDto, pageOptionsDto: PageOptionsDto): Promise<PageDto<ProvinceDto>> {
     const queryBuilder = this.repo.createQueryBuilder("supplier");
