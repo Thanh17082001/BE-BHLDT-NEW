@@ -10,6 +10,6 @@ import { ProvinceModule } from 'src/province/province.module';
   imports: [TypeOrmModule.forFeature([District]), HttpModule, ProvinceModule],
   controllers: [DistrictController],
   providers: [DistrictService],
-  exports: [DistrictService],
+  exports: [DistrictService, TypeOrmModule],
 })
 export class DistrictModule { }

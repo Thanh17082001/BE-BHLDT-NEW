@@ -20,6 +20,10 @@ import { Score } from 'src/score/entities/score.entity';
 import {scoreAverage} from 'src/utils/score-avg';
 import { PromotedDto } from 'src/score/dto/promoted-dto';
 import { TypeScore } from 'src/type-score/entities/type-score.entity';
+import { Province } from 'src/province/entities/supplier.entity';
+import { District } from 'src/district/entities/district.entity';
+import { Ward } from 'src/ward/entities/ward.entity';
+import { WardService } from 'src/ward/ward.service';
 
 type ScoresByType = {
   [key: string]: Score[];
@@ -32,7 +36,11 @@ export class StudentService {
     @InjectRepository(Student) private readonly repo: Repository<Student>,
     @InjectRepository(TypeScore) private readonly repoTypeScore: Repository<TypeScore>,
     @InjectRepository(Score) private readonly scoreRepository: Repository<Score>,
+    @InjectRepository(Province) private readonly provinceRepository: Repository<Province>,
+    @InjectRepository(District) private readonly districtRepository: Repository<District>,
+    @InjectRepository(Ward) private readonly wardRepository: Repository<Ward>,
     private profileService: ProfileService,
+    private wardService: WardService,
   ) {
   }
   async create(createstudenDto: Partial<CreateStudentDto>, createProfileDto:CreateProfileDto): Promise<Student> {
@@ -76,6 +84,15 @@ export class StudentService {
     if (!queryScore.typeScoreId) {
       const typeScopes = await this.repoTypeScore.find()
       for (let i = 0; i < entities.length; i++){
+        //Tỉnh thành quận
+        const province = await this.provinceRepository.findOne({ where: { id: entities[i].profile.province_id } });
+        const district = await this.districtRepository.findOne({ where: { id: entities[i].profile.district_id } });
+        const ward = await this.wardRepository.findOne({ where: { id: entities[i]?.profile?.ward_id} });
+        (entities[i].profile as any).province = province;
+        (entities[i].profile as any).district = district;
+        (entities[i].profile as any).ward = ward;
+        
+
         const scores:Score[] = await this.scoreRepository.find({
             where: {
               studentId: +entities[i].id || 0,

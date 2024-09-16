@@ -77,6 +77,14 @@ export class LevelService {
     }))
   }
 
+  async findByName(name: string): Promise<Level> {
+    return await this.repo.findOne({
+      where: {
+        name: name
+      }
+    })
+  }
+
   async update(id: number, updateLevel: Partial<UpdateLevelDto>): Promise<Level> {
     const level: Level = await this.repo.findOne({where:{id:id}});
     const typeQuestion: TypeQuestion = await this.repoTypeQuestion.findOne({

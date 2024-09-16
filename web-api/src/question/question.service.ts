@@ -22,7 +22,7 @@ export class QuestionService {
     @InjectRepository(TypeQuestion) private repoTypeQuestion: Repository<TypeQuestion>,
     @InjectRepository(Topic) private repoTopic: Repository<Topic>,
     @InjectRepository(Level) private repoLevel: Repository<Level>,
-      private readonly answerService:AnswerService,
+    private readonly answerService: AnswerService,
   ) {
   }
   async create(createQuestionDto: Partial<CreateQuestionDto>): Promise<Question> {
@@ -30,24 +30,29 @@ export class QuestionService {
     // const grade = await this.gradeRepository.findOne({ where: { id: +gradeId } });
    
 
-    let cls = await this.repo.create({ content, subjectId, topicId, typeQuestionId, numberOfAnswers, levelId, score});
+    let cls = await this.repo.create({ content, subjectId, topicId, typeQuestionId, numberOfAnswers, levelId, score });
     cls = await this.repo.save(cls);
     const dataAnswer = []
-    for (let i = 0; i < answers.length; i++){
+    for (let i = 0; i < answers.length; i++) {
       answers[i].questionId = cls.id;
-      dataAnswer.push(await this.answerService.create(answers[i]));
+      if (answers[i].content==undefined || answers[i].content == '') {
+        
+      }
+      else {
+        dataAnswer.push(await this.answerService.create(answers[i]));
+      }
     }
     cls.answers = dataAnswer;
     return cls
   }
 
   async findAll(pageOptions: PageOptionsDto, querySchol: Partial<Question>): Promise<PageDto<Question>> {
-    const queryBuilder = this.repo.createQueryBuilder('question').leftJoinAndSelect('question.answers','answer');
+    const queryBuilder = this.repo.createQueryBuilder('question').leftJoinAndSelect('question.answers', 'answer');
 
     if (!!querySchol && Object.keys(querySchol).length > 0) {
       const arrayQuery = difference(Object.keys(pageOptions), Object.keys(querySchol))
       arrayQuery.forEach((key) => {
-        if (key !== undefined && key !== null && key!='page' && key != 'take' && key != 'skip' && key != 'order') {
+        if (key !== undefined && key !== null && key != 'page' && key != 'take' && key != 'skip' && key != 'order') {
           console.log(key);
           queryBuilder.andWhere(`question.${key} = :${key}`, { [key]: querySchol[key] });
         }
@@ -64,34 +69,34 @@ export class QuestionService {
     const itemCount = await queryBuilder.getCount();
     const pageMetaDto = new PageMetaDto({ pageOptionsDto: pageOptions, itemCount });
     const entities = await queryBuilder.getMany();
-    for (let i = 0; i < entities.length; i++){
-        const typeQuestion:TypeQuestion = await this.repoTypeQuestion.findOne({
-            where: {
-             id:entities[i].typeQuestionId
-            }
-        });
+    for (let i = 0; i < entities.length; i++) {
+      const typeQuestion: TypeQuestion = await this.repoTypeQuestion.findOne({
+        where: {
+          id: entities[i].typeQuestionId
+        }
+      });
       
-       const level:Level = await this.repoLevel.findOne({
-            where: {
-             id:entities[i].levelId
-            }
-        });
-        const topic:Topic = await this.repoTopic.findOne({
-            where: {
-             id:entities[i].topicId
-            }
-        });
-        (entities[i] as any).typeQuestion = typeQuestion;
-        (entities[i] as any).topic = topic;
-        (entities[i] as any).level = level;
-      }
+      const level: Level = await this.repoLevel.findOne({
+        where: {
+          id: entities[i].levelId
+        }
+      });
+      const topic: Topic = await this.repoTopic.findOne({
+        where: {
+          id: entities[i].topicId
+        }
+      });
+      (entities[i] as any).typeQuestion = typeQuestion;
+      (entities[i] as any).topic = topic;
+      (entities[i] as any).level = level;
+    }
     return new PageDto(entities, pageMetaDto);
 
   }
 
 
-  async findOne(id: number): Promise<ItemDto<Question>>{
-    return  new ItemDto( await this.repo.findOne({
+  async findOne(id: number): Promise<ItemDto<Question>> {
+    return new ItemDto(await this.repo.findOne({
       where: {
         id: id,
       },
@@ -107,9 +112,9 @@ export class QuestionService {
       relations: ['answers'],
     });
     const answers = updateQuetion.answers;
-    const answerUpdated =[]
-    for (let i = 0; i < answers.length; i++){
-      answerUpdated.push(await this.answerService.update(+question.answers[i]?.id || -1,answers[i]));
+    const answerUpdated = []
+    for (let i = 0; i < answers.length; i++) {
+      answerUpdated.push(await this.answerService.update(+question.answers[i]?.id || -1, answers[i]));
     }
     if (!question) {
       throw new NotFoundException('question not found');
@@ -122,8 +127,8 @@ export class QuestionService {
     return await this.repo.save(data);
   }
 
-   async remove(id: number):Promise<Question> {
-      const question = await this.repo.findOne({
+  async remove(id: number): Promise<Question> {
+    const question = await this.repo.findOne({
       where: { id: id },
     });
 
@@ -139,8 +144,8 @@ export class QuestionService {
 
     const levels = randomqestTionDto.levels
     const result = []
-    for (let i = 0; i < levels.length; i++){
-      const level=levels[i]
+    for (let i = 0; i < levels.length; i++) {
+      const level = levels[i]
       const count = level.count
       const data = await this.repo
         .createQueryBuilder('question')
@@ -152,7 +157,15 @@ export class QuestionService {
         .andWhere('question.levelId = :levelId', { levelId: level.levelId })
         .getMany();
       result.push(...data)
-      }
-      return result
     }
+    
+    for (let i = 0; i < result.length; i++){
+      const question = result[i]
+      const topic: Topic = await this.repoTopic.findOne({ where: { id: question.topicId } });
+      const level: Level = await this.repoLevel.findOne({ where: { id: question.levelId } });
+      (question as any).topic = topic;
+      (question as any).level = level;
+    }
+      return result
+  }
 }

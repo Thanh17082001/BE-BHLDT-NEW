@@ -10,6 +10,6 @@ import { DistrictModule } from 'src/district/district.module';
   imports: [TypeOrmModule.forFeature([Ward]), HttpModule, DistrictModule],
   controllers: [WardController],
   providers: [WardService],
-  exports: [WardService],
+  exports: [WardService, TypeOrmModule],
 })
 export class WardModule { }
