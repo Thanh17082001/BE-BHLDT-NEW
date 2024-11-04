@@ -83,7 +83,10 @@ export class VoiceController {
         name:name
       }
       const voicePathOld = path.join(__dirname, '..', '..', '/public', voice.data?.link);
-      fs.unlinkSync(voicePathOld);
+      if (fs.existsSync(voicePathOld)) {
+
+        fs.unlinkSync(voicePathOld);
+      }
       return this.voiceService.update(+id, data);
     }
     else {

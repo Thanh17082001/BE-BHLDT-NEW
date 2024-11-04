@@ -29,14 +29,14 @@ export class SubjectService {
   }
 
   async create(entity: CreateSubjectDto) {
-    const exits: Subject = await this.repo.findOne({
-      where: {
-        name:entity.name
-      }
-    })
-    if (exits) {
-      throw new BadRequestException('Subject is already!')
-    }
+    // const exits: Subject = await this.repo.findOne({
+    //   where: {
+    //     name:entity.name
+    //   }
+    // })
+    // if (exits) {
+    //   throw new BadRequestException('Subject is already!')
+    // }
     const grade: Grade = await this.gradeService.findOne(entity.grade_id)
     const cls = this.repo.create({ name:entity.name, grade });
     if (!grade.subjects) {

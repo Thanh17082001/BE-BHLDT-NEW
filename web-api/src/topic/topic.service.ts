@@ -49,7 +49,7 @@ export class TopicService {
   }
 
   async find(gradeQuery: QueryTopicDto, pageOptionsDto: PageOptionsDto): Promise<PageDto<Topic>> {
-      const queryBuilder = this.repo.createQueryBuilder('topic').leftJoinAndSelect('topic.subject', 'subject')
+      const queryBuilder = this.repo.createQueryBuilder('topic').leftJoinAndSelect('topic.subject', 'subject').leftJoinAndSelect('subject.grade', 'grade')
     if (!!gradeQuery && Object.keys(gradeQuery).length > 0) {
       const arrayQuery = difference(Object.keys(pageOptionsDto), Object.keys(gradeQuery))
       console.log(arrayQuery);
