@@ -50,7 +50,8 @@ export class QuestionController {
         const createQuestionDto: CreateQuestionDto = {
           content: item[keyData[1]],
           subjectId: +importFileExcel.subjectId,
-          topicId: +importFileExcel.topicId,
+          partId: +importFileExcel.partId,
+          topicId: +importFileExcel.topicId || null,
           typeQuestionId: +importFileExcel.typeQuestionId,
           numberOfAnswers: 4,
           levelId: level.id,

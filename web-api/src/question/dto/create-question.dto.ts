@@ -11,6 +11,10 @@ export class CreateQuestionDto {
     @ApiProperty()
     @IsNumber()
     subjectId: number;
+
+    @ApiProperty()
+    @IsNumber()
+    partId: number;
      @ApiProperty()
      @IsNumber()
     topicId: number;

@@ -11,6 +11,10 @@ export class ImportFileExcel {
 
     @ApiProperty()
     @IsString()
+    partId: number;
+
+    @ApiProperty()
+    @IsString()
     topicId: number;
 
     @ApiProperty()

@@ -26,11 +26,11 @@ export class QuestionService {
   ) {
   }
   async create(createQuestionDto: Partial<CreateQuestionDto>): Promise<Question> {
-    const { content, subjectId, topicId, typeQuestionId, numberOfAnswers, levelId, score, answers } = createQuestionDto;
+    const { content, subjectId, topicId, typeQuestionId, numberOfAnswers, levelId, score, answers, partId } = createQuestionDto;
     // const grade = await this.gradeRepository.findOne({ where: { id: +gradeId } });
    
 
-    let cls = await this.repo.create({ content, subjectId, topicId, typeQuestionId, numberOfAnswers, levelId, score });
+    let cls = await this.repo.create({ content, subjectId, topicId, typeQuestionId, numberOfAnswers, levelId, score, partId });
     cls = await this.repo.save(cls);
     const dataAnswer = []
     for (let i = 0; i < answers.length; i++) {

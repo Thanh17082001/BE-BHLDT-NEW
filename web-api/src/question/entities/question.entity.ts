@@ -8,6 +8,8 @@ export class Question extends AbstractEntity {
     content: string;
     @Column()
     subjectId: number;
+    @Column({ nullable: true })
+    partId: number;
      @Column()
     topicId: number;
      @Column()
