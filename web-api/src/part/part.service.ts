@@ -52,7 +52,6 @@ export class PartService {
     const itemCount = await queryBuilder.getCount();
     const pageMetaDto = new PageMetaDto({ pageOptionsDto: pageOptions, itemCount });
     const entities = await queryBuilder.getMany();
-    console.log(entities);
 
     return new PageDto(entities, pageMetaDto);
 

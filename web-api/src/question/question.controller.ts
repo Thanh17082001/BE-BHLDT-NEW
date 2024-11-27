@@ -99,10 +99,13 @@ export class QuestionController {
     return await this.questionService.findOne(+id);
   }
 
+
   @Put(':id')
   async update(@Param('id') id: string, @Body() updateQuestionDto: UpdateQuestionDto):Promise<Question> {
     return this.questionService.update(+id, updateQuestionDto);
   }
+
+  
 
   @Delete(':id')
   remove(@Param('id') id: string) {

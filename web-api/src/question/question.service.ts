@@ -127,6 +127,8 @@ export class QuestionService {
     return await this.repo.save(data);
   }
 
+  
+
   async remove(id: number): Promise<Question> {
     const question = await this.repo.findOne({
       where: { id: id },
@@ -144,6 +146,7 @@ export class QuestionService {
 
     const levels = randomqestTionDto.levels
     const result = []
+    // mỗi câu hỏi có số câu theo từng mức độ
     for (let i = 0; i < levels.length; i++) {
       const level = levels[i]
       const count = level.count

@@ -14,6 +14,7 @@ import { Level } from 'src/level/entities/level.entity';
 import { CLIENT_RENEG_LIMIT } from 'tls';
 import { QuestionService } from 'src/question/question.service';
 import { Subject } from 'src/subject/entities/subject.entity';
+import { Part } from 'src/part/entities/part.entity';
 
 @Injectable()
 export class ExamService {
@@ -23,6 +24,7 @@ export class ExamService {
     @InjectRepository(Topic) private topicReponsitory: Repository<Topic>,
     @InjectRepository(Level) private levelRepository: Repository<Level>,
     @InjectRepository(Subject) private subjectRepository: Repository<Subject>,
+    @InjectRepository(Part) private partRepository: Repository<Part>,
   ) {
   }
   async create(createExamDto: CreateExamDto): Promise<Exam> {
@@ -139,8 +141,8 @@ export class ExamService {
       EssayScore,
     };
 
-    this.generateSubExams(result)
-    return new ItemDto(this.generateSubExams(result))
+
+    return new ItemDto( await this.generateSubExams(result))
   }
 
   async update(id: number, updateExamDto: Partial<UpdateExamDto>): Promise<Exam> {
@@ -190,20 +192,38 @@ export class ExamService {
     return await this.repo.remove(exam)
   }
 
-  generateSubExams(data) {
+  async generateSubExams(data) {
+    const parts = await this.partRepository.find()
     const { subExam, MultipleChoiceScore } = data;
-
     // Tạo ra các đề con với thứ tự `MultipleChoiceScore` khác nhau
     const subExams = Array.from({ length: subExam + 1 }, (_, index) => {
       return {
-        ...data,  // Giữ nguyên cấu trúc dữ liệu ban đầu
+        ...data,
         subExamIndex: index,
-        MultipleChoiceScore: this.shuffleArray([...MultipleChoiceScore])  // Trộn lại mảng `MultipleChoiceScore` cho mỗi đề con
+        MultipleChoiceScore: index === 0
+          ? this.groupByPartId(MultipleChoiceScore, parts) // Giữ nguyên mảng gốc ở subExamIndex = 0
+          : this.shuffleByPartIdToObjects([...MultipleChoiceScore], parts), 
       };
     });
 
     return subExams;
   }
+
+  groupByPartId(array: any[], parts) {
+    const result = array.reduce((acc, question) => {
+      const { partId } = question;
+      acc[partId] = acc[partId] || [];
+      acc[partId].push(question); // Thêm câu hỏi vào phần tương ứng, giữ nguyên thứ tự
+      return acc;
+    }, {});
+
+    const partObjects = Object.entries(result).map(([partId, questions]) => ({
+      part: parts.find(part => part.id == +partId),
+      questions: questions,
+    }));
+    return partObjects
+  }
+  
   // Hàm để trộn ngẫu nhiên một mảng
   shuffleArray(array: any[]) {
     for (let i = array.length - 1; i > 0; i--) {
@@ -211,6 +231,24 @@ export class ExamService {
       [array[i], array[j]] = [array[j], array[i]];
     }
     return array;
+  }
+
+  shuffleByPartIdToObjects(array: any[], parts) {
+    // Nhóm câu hỏi theo `partId`
+    const groupedByPart: Record<number, any[]> = array.reduce((acc, question) => {
+      const { partId } = question;
+      acc[partId] = acc[partId] || [];
+      acc[partId].push(question);
+      return acc;
+    }, {});
+
+    // Trộn từng nhóm và chuyển thành object
+    const partObjects = Object.entries(groupedByPart).map(([partId, questions]) => ({
+      part: parts.find(part => part.id == +partId),
+      questions: this.shuffleArray(questions),
+    }));
+
+    return partObjects;
   }
 
 }

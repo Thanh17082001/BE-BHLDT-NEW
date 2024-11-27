@@ -7,9 +7,10 @@ import { QuestionModule } from 'src/question/question.module';
 import { LevelModule } from 'src/level/level.module';
 import { TopicModule } from 'src/topic/topic.module';
 import { SubjectModule } from 'src/subject/subject.module';
+import { PartModule } from 'src/part/part.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Exam]), QuestionModule, TopicModule, LevelModule, SubjectModule],
+  imports: [TypeOrmModule.forFeature([Exam]), QuestionModule, TopicModule, LevelModule, SubjectModule, PartModule],
   controllers: [ExamController],
   providers: [ExamService],
 })
