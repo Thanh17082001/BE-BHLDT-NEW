@@ -14,6 +14,12 @@ export class Exam extends AbstractEntity {
     subExam: number;
     @Column()
     totalMultipleChoiceScore: number;
+    @Column({nullable: true})
+    totalMultipleChoiceScorePartI: number;
+    @Column({nullable: true})
+    totalMultipleChoiceScorePartII: number;
+    @Column({nullable: true})
+    totalMultipleChoiceScorePartIII: number;
     @Column()
     totalEssayScore: number;
     @ManyToMany(() => Question)

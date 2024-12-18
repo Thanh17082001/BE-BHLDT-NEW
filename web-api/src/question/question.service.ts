@@ -14,6 +14,7 @@ import { Topic } from 'src/topic/entities/topic.entity';
 import { Level } from 'src/level/entities/level.entity';
 import { CLIENT_RENEG_LIMIT } from 'tls';
 import { RandomQuestionDto } from './dto/randoom-question.dto';
+import { Part } from 'src/part/entities/part.entity';
 
 @Injectable()
 export class QuestionService {
@@ -22,6 +23,7 @@ export class QuestionService {
     @InjectRepository(TypeQuestion) private repoTypeQuestion: Repository<TypeQuestion>,
     @InjectRepository(Topic) private repoTopic: Repository<Topic>,
     @InjectRepository(Level) private repoLevel: Repository<Level>,
+    @InjectRepository(Part) private repoPart: Repository<Part>,
     private readonly answerService: AnswerService,
   ) {
   }
@@ -86,9 +88,15 @@ export class QuestionService {
           id: entities[i].topicId
         }
       });
+      const part: Part = await this.repoPart.findOne({
+        where: {
+          id: entities[i].partId
+        }
+      });
       (entities[i] as any).typeQuestion = typeQuestion;
       (entities[i] as any).topic = topic;
       (entities[i] as any).level = level;
+      (entities[i] as any).part = part;
     }
     return new PageDto(entities, pageMetaDto);
 

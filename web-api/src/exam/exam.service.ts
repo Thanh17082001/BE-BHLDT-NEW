@@ -29,7 +29,7 @@ export class ExamService {
   }
   async create(createExamDto: CreateExamDto): Promise<Exam> {
 
-    const { name, subjectId, time, subExam, totalMultipleChoiceScore, totalEssayScore, questionIds } = createExamDto;
+    const { name, subjectId, time, subExam, totalMultipleChoiceScore, totalEssayScore, questionIds, totalMultipleChoiceScorePartI, totalMultipleChoiceScorePartII, totalMultipleChoiceScorePartIII } = createExamDto;
     const questions: Question[] = await this.questionRepository.findByIds(questionIds);
     const exits = await this.repo.findOne({
       where: {
@@ -41,7 +41,7 @@ export class ExamService {
       throw new BadRequestException('exam is already!')
     }
 
-    return await this.repo.save({ name, subjectId, time, subExam, totalMultipleChoiceScore, totalEssayScore, questions });
+    return await this.repo.save({ name, subjectId, time, subExam, totalMultipleChoiceScore, totalEssayScore, questions, totalMultipleChoiceScorePartI, totalMultipleChoiceScorePartII, totalMultipleChoiceScorePartIII });
   }
 
 

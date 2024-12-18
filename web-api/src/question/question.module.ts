@@ -8,9 +8,10 @@ import { AnswerService } from 'src/answer/answer.service';
 import { LevelModule } from 'src/level/level.module';
 import { TopicModule } from 'src/topic/topic.module';
 import { TypeQuestionModule } from 'src/type-question/type-question.module';
+import { PartModule } from 'src/part/part.module';
 
 @Module({
-  imports:[TypeOrmModule.forFeature([Question]), AnswerModule, LevelModule, TopicModule, TypeQuestionModule ],
+  imports:[TypeOrmModule.forFeature([Question]), AnswerModule, LevelModule, TopicModule, TypeQuestionModule, PartModule ],
   controllers: [QuestionController],
   providers: [QuestionService, AnswerService],
   exports:[TypeOrmModule]

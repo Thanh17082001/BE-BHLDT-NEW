@@ -19,6 +19,15 @@ export class CreateExamDto {
     totalMultipleChoiceScore: number;
     @ApiProperty()
     @IsNumber()
+    totalMultipleChoiceScorePartI: number;
+    @ApiProperty()
+    @IsNumber()
+    totalMultipleChoiceScorePartII: number;
+    @ApiProperty()
+    @IsNumber()
+    totalMultipleChoiceScorePartIII: number;
+    @ApiProperty()
+    @IsNumber()
     totalEssayScore: number;
     @ApiProperty({example: [1,2,3]})
     @IsArray()
