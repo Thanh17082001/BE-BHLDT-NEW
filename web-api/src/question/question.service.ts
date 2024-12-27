@@ -30,15 +30,15 @@ export class QuestionService {
   async create(createQuestionDto: Partial<CreateQuestionDto>): Promise<Question> {
     const { content, subjectId, topicId, typeQuestionId, numberOfAnswers, levelId, score, answers, partId } = createQuestionDto;
     // const grade = await this.gradeRepository.findOne({ where: { id: +gradeId } });
-   
+
 
     let cls = await this.repo.create({ content, subjectId, topicId, typeQuestionId, numberOfAnswers, levelId, score, partId });
     cls = await this.repo.save(cls);
     const dataAnswer = []
     for (let i = 0; i < answers.length; i++) {
       answers[i].questionId = cls.id;
-      if (answers[i].content==undefined || answers[i].content == '') {
-        
+      if (answers[i].content == undefined || answers[i].content == '') {
+
       }
       else {
         dataAnswer.push(await this.answerService.create(answers[i]));
@@ -77,7 +77,7 @@ export class QuestionService {
           id: entities[i].typeQuestionId
         }
       });
-      
+
       const level: Level = await this.repoLevel.findOne({
         where: {
           id: entities[i].levelId
@@ -135,7 +135,7 @@ export class QuestionService {
     return await this.repo.save(data);
   }
 
-  
+
 
   async remove(id: number): Promise<Question> {
     const question = await this.repo.findOne({
@@ -164,19 +164,20 @@ export class QuestionService {
         .limit(count)
         .where('question.subjectId = :subjectId', { subjectId: randomqestTionDto.subjectId })
         .andWhere('question.topicId = :topicId', { topicId: randomqestTionDto.topicId })
+        .andWhere('question.partId = :partId', { partId: randomqestTionDto.partId })
         .andWhere('question.typeQuestionId = :typeQuestionId', { typeQuestionId: randomqestTionDto.typeQuestionId })
         .andWhere('question.levelId = :levelId', { levelId: level.levelId })
         .getMany();
       result.push(...data)
     }
-    
-    for (let i = 0; i < result.length; i++){
+
+    for (let i = 0; i < result.length; i++) {
       const question = result[i]
       const topic: Topic = await this.repoTopic.findOne({ where: { id: question.topicId } });
       const level: Level = await this.repoLevel.findOne({ where: { id: question.levelId } });
       (question as any).topic = topic;
       (question as any).level = level;
     }
-      return result
+    return result
   }
 }

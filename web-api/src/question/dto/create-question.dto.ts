@@ -1,6 +1,6 @@
 import { Answer } from './../../answer/entities/answer.entity';
 import { ApiProperty } from "@nestjs/swagger";
-import { IsArray, IsNumber, IsString } from "class-validator";
+import { IsArray, IsNumber, IsOptional, IsString } from "class-validator";
 import { CreateAnswerDto } from 'src/answer/dto/create-answer.dto';
 
 export class CreateQuestionDto {
@@ -13,8 +13,8 @@ export class CreateQuestionDto {
     subjectId: number;
 
     @ApiProperty()
-    @IsNumber()
-    partId: number;
+    @IsOptional()
+    partId?: number =null;
      @ApiProperty()
      @IsNumber()
     topicId: number;

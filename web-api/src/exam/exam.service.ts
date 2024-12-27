@@ -97,9 +97,11 @@ export class ExamService {
         const questions = categorizedExams[i].MultipleChoiceScore
         const level: Level = await this.levelRepository.findOne({ where: { id: questions[j].levelId } });
         const topic: Topic = await this.topicReponsitory.findOne({ where: { id: questions[j].topicId } });
+        const part: Part = await this.partRepository.findOne({ where: { id: questions[j].partId } });
 
         (categorizedExams[i].MultipleChoiceScore[j] as any).level = level;
         (categorizedExams[i].MultipleChoiceScore[j] as any).topic = topic;
+        (categorizedExams[i].MultipleChoiceScore[j] as any).part = part;
 
       }
     }

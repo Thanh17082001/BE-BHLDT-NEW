@@ -11,6 +11,9 @@ export class RandomQuestionDto{
     subjectId: number;
     @ApiProperty()
     @IsNumber()
+    partId: number;
+    @ApiProperty()
+    @IsNumber()
     topicId: number;
     @ApiProperty()
     @IsNumber()
