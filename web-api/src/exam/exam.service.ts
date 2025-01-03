@@ -201,6 +201,7 @@ export class ExamService {
     const subExams = Array.from({ length: subExam + 1 }, (_, index) => {
       return {
         ...data,
+        questions:undefined,
         subExamIndex: index,
         MultipleChoiceScore: index === 0
           ? this.groupByPartId(MultipleChoiceScore, parts) // Giữ nguyên mảng gốc ở subExamIndex = 0
