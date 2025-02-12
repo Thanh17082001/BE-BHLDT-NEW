@@ -66,6 +66,15 @@ export class PartService {
     }))
   }
 
+  async findByName(name: string): Promise<Part> {
+    const namePart = `Phần ${name}`
+      return await this.repo.findOne({
+        where: {
+          name: namePart
+        }
+      })
+    }
+
   async update(id: number, updatePart: Partial<UpdatePartDto>): Promise<Part> {
     const typeQuestion: Part = await this.repo.findOne({
       where: {

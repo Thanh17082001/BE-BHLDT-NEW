@@ -21,26 +21,30 @@ export class SchoolService {
   ) {
   }
   async create(createSchoolDto: CreateSchoolDto): Promise<SchoolInterface> {
-    const { code } = createSchoolDto;
-    const exits = await this.repo.findOne({
-      where: {
-        code,
-        status:1
+    try {
+      const { code } = createSchoolDto;
+      const exits = await this.repo.findOne({
+        where: {
+          code,
+          status: 1
+        }
+      })
+      if (exits) {
+        throw new BadRequestException('School code is already!')
       }
-    })
-    if (exits) {
-      throw new BadRequestException('School code is already!')
+      return await this.repo.save(createSchoolDto);
+    } catch (error) {
+      throw new Error(error.message)
     }
-    return await this.repo.save(createSchoolDto);
   }
 
-  async addgrades(addGradesDto: AddGradesDto): Promise<SchoolInterface>{
-    const { id, grades} = addGradesDto;
+  async addgrades(addGradesDto: AddGradesDto): Promise<SchoolInterface> {
+    const { id, grades } = addGradesDto;
     const gradesData: Array<Grade> = []
-    
-    for (let i = 0; i < grades.length; i++){
+
+    for (let i = 0; i < grades.length; i++) {
       const grade: Grade = await this.gradeRepository.findOne({
-        where:{id:Number(grades[i])}
+        where: { id: Number(grades[i]) }
       })
       if (grade) {
         gradesData.push(grade)
@@ -49,50 +53,50 @@ export class SchoolService {
         throw new BadRequestException('Id grade is not found')
       }
     }
-   const school: School = await this.repo.findOne({
-        where: { id: Number(id) },
-        relations: ['grades']
+    const school: School = await this.repo.findOne({
+      where: { id: Number(id) },
+      relations: ['grades']
     });
-    
-    if (gradesData.length<=0) {
+
+    if (gradesData.length <= 0) {
       throw new BadRequestException(' Grades is not empty')
     }
     school.grades = differenceArrayOB([...school.grades, ...gradesData]);
     return this.repo.save(school)
   }
 
-  async findAll( pageOptions : PageOptionsDto, querySchol: Partial<SchoolInterface>): Promise<PageDto<SchoolInterface>> {
-    const queryBuilder = this.repo.createQueryBuilder('school').leftJoinAndSelect('school.grades', 'grades') .where('school.status = :status', { status: 1 }); 
+  async findAll(pageOptions: PageOptionsDto, querySchol: Partial<SchoolInterface>): Promise<PageDto<SchoolInterface>> {
+    const queryBuilder = this.repo.createQueryBuilder('school').leftJoinAndSelect('school.grades', 'grades').where('school.status = :status', { status: 1 });
     if (!!querySchol && Object.keys(querySchol).length > 0) {
       const arrayQuery = difference(Object.keys(pageOptions), Object.keys(querySchol))
-     arrayQuery.forEach((key) => {
-        if (key !== undefined && key !== null ) {
+      arrayQuery.forEach((key) => {
+        if (key !== undefined && key !== null) {
           queryBuilder.andWhere(`school.${key} = :${key}`, { [key]: querySchol[key] });
         }
       });
     }
 
-     if (pageOptions.search) {
+    if (pageOptions.search) {
       queryBuilder.andWhere('school.name LIKE :name', { name: `%${pageOptions.search}%` });
     }
 
     queryBuilder.orderBy("school.createdAt", pageOptions.order)
-    .skip(pageOptions.skip)
+      .skip(pageOptions.skip)
       .take(pageOptions.take);
-      
-      const itemCount = await queryBuilder.getCount();
-      const pageMetaDto = new PageMetaDto({pageOptionsDto:pageOptions, itemCount });
-    const  entities  = await queryBuilder.getMany();
+
+    const itemCount = await queryBuilder.getCount();
+    const pageMetaDto = new PageMetaDto({ pageOptionsDto: pageOptions, itemCount });
+    const entities = await queryBuilder.getMany();
 
     return new PageDto(entities, pageMetaDto);
-    
+
   }
-  
+
 
   async findOne(id: number): Promise<School> {
     return this.repo.findOne({
       where: {
-        id:id
+        id: id
       }
     })
   }
@@ -104,7 +108,7 @@ export class SchoolService {
       where: {
         code,
         id: Not(id),
-        status:1
+        status: 1
       }
     })
     if (exits) {
@@ -113,7 +117,7 @@ export class SchoolService {
     if (!typeLib) {
       throw new NotFoundException('school does not exits!');
     }
-     const data = this.repo.merge(
+    const data = this.repo.merge(
       typeLib,
       updateSchoolDto,
     );
@@ -132,7 +136,7 @@ export class SchoolService {
   //   return await this.repo.save(data);
   // }
 
-  async remove(id: number):Promise<School> {
+  async remove(id: number): Promise<School> {
     const school = await this.repo.findOne({ where: { id: id }, relations: ['grades', 'grades.classes'] });
 
     if (!school) {

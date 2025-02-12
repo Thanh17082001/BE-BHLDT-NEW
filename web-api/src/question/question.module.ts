@@ -11,7 +11,7 @@ import { TypeQuestionModule } from 'src/type-question/type-question.module';
 import { PartModule } from 'src/part/part.module';
 
 @Module({
-  imports:[TypeOrmModule.forFeature([Question]), AnswerModule, LevelModule, TopicModule, TypeQuestionModule, PartModule ],
+  imports:[TypeOrmModule.forFeature([Question]) ,AnswerModule, LevelModule, TopicModule, TypeQuestionModule, PartModule ],
   controllers: [QuestionController],
   providers: [QuestionService, AnswerService],
   exports:[TypeOrmModule]

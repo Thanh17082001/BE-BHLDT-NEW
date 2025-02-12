@@ -9,9 +9,9 @@ export class ImportFileExcel {
     @IsString()
     subjectId: number;
 
-    @ApiProperty()
-    @IsString()
-    partId: number;
+    // @ApiProperty()
+    // @IsString()
+    // partId: number;
 
     @ApiProperty()
     @IsString()

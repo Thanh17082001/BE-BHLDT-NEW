@@ -15,11 +15,15 @@ import { Level } from 'src/level/entities/level.entity';
 import { Answer } from 'src/answer/entities/answer.entity';
 import { CreateAnswerDto } from 'src/answer/dto/create-answer.dto';
 import { clearScreenDown } from 'readline';
+import { PartService } from 'src/part/part.service';
 
 @Controller('question')
 @ApiTags('question')
 export class QuestionController {
-  constructor(private readonly questionService: QuestionService, private readonly levelService: LevelService) {}
+  constructor(private readonly questionService: QuestionService,
+    private readonly levelService: LevelService,
+    private readonly partService: PartService,
+  ) { }
 
   @Post()
   async create(@Body() createQuestionDto: CreateQuestionDto) {
@@ -40,20 +44,23 @@ export class QuestionController {
     const data = XLSX.utils.sheet_to_json(worksheet);
     const keyData: string[] = Object.keys(data[0])
     const questions: Question[] = []
+    const array = []
     console.log(data);
     let errors: Array<{ row: number, error: string }> = [];
     for (let i = 0; i < data.length; i++) {
       console.log(i);
       const item = data[i];
+      console.log(item);
       try {
         const level = await this.levelService.findByName(item[keyData[2]]);
+        const part = await this.partService.findByName(item['Phần']);
         const createQuestionDto: CreateQuestionDto = {
           content: item[keyData[1]],
           subjectId: +importFileExcel.subjectId,
-          partId: +importFileExcel.partId,
+          partId: part.id,
           topicId: +importFileExcel.topicId || null,
           typeQuestionId: +importFileExcel.typeQuestionId,
-          numberOfAnswers: 4,
+          numberOfAnswers: item['Phần']==='III'? 1 : 4,
           levelId: level.id,
           score: +0.25,
           answers: [{
@@ -76,6 +83,7 @@ export class QuestionController {
         };
 
         const result = await this.questionService.create(createQuestionDto);
+        
         questions.push(result)
       } catch (error) {
         errors.push({ row: i + 1, error: error.message });
