@@ -65,7 +65,8 @@ export class SubjectService {
       queryBuilder.andWhere('subject.name LIKE :name', { name: `%${pageOptionsDto.search}%` });
     }
 
-    queryBuilder.orderBy("subject.createdAt", pageOptionsDto.order)
+    queryBuilder
+      .addOrderBy("subject.name", 'ASC')
     .skip(pageOptionsDto.skip)
       .take(pageOptionsDto.take);
       
