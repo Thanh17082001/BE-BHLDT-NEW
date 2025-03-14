@@ -22,6 +22,7 @@ export class ProfileService {
   async create(entity: CreateProfileDto) {
     const profileExist: Profile = await this.repo.findOne({ where: { code: entity.code } })
     if (profileExist) {
+      console.log('thhththtt');
       throw new BadRequestException('Student code is already!');
     }
     const profile = this.repo.create(entity);

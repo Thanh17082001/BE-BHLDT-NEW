@@ -54,6 +54,7 @@ export class QuestionController {
       try {
         const level = await this.levelService.findByName(item[keyData[2]]);
         const part = await this.partService.findByName(item['Phần']);
+        const answerCorrect = Array.from(item['Đáp án đúng'].split(','));
         const createQuestionDto: CreateQuestionDto = {
           content: item[keyData[1]],
           subjectId: +importFileExcel.subjectId,
@@ -65,20 +66,20 @@ export class QuestionController {
           score: +0.25,
           answers: [{
             content: item['A'] ?? '',
-            isCorrect: item['Đáp án đúng'] == 'A',
+            isCorrect: answerCorrect.includes('A'),
             questionId: 0
           }, {
             content: item['B'] ?? '',
-            isCorrect: item['Đáp án đúng'] == 'B',
+            isCorrect: answerCorrect.includes('B'),
             questionId: 0
           }, {
             content: item['C'] ?? '',
-            isCorrect: item['Đáp án đúng'] == 'C',
+            isCorrect: answerCorrect.includes('C'),
             questionId: 0
           }, {
             content: item['D'] ?? '',
-            isCorrect: item['Đáp án đúng'] == 'D',
-            questionId: 0
+            isCorrect: answerCorrect.includes('D'),
+            questionId:  0
           },]
         };
 

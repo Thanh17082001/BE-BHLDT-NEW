@@ -10,7 +10,7 @@ import { ItemDto, PageDto } from 'src/utils/dtos/page-dto';
 import { CreateProfileDto } from 'src/profile/dtos/create-profile.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import * as XLSX from 'xlsx';
-import { ImportFileExcel } from './dto/excel.dto';
+import { ImportFileExcelStudent } from './dto/excel.dto';
 import * as moment from 'moment';
 import { Province } from 'src/province/entities/supplier.entity';
 import { ProvinceService } from 'src/province/province.service';
@@ -60,7 +60,7 @@ export class StudentController {
   @Post('import-excel')
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('file'))
-  async uploadFileExcel(@UploadedFile() file: Express.Multer.File,  @Body() importFileExcel: ImportFileExcel ) {
+  async uploadFileExcel(@UploadedFile() file: Express.Multer.File,  @Body() importFileExcel: ImportFileExcelStudent ) {
     try {
       const workbook = XLSX.read(file.buffer, { type: 'buffer' });
     const sheetName = workbook.SheetNames[0];

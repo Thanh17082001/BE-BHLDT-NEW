@@ -5,7 +5,7 @@ import { AbstractEntity } from "src/utils/AbstractEntity";
 import { Entity, Column, PrimaryGeneratedColumn, Index, OneToOne } from "typeorm";
 @Entity()
 export class Profile extends AbstractEntity {
-    @Column({unique:true, nullable:true})
+    @Column({ nullable:true})
     code: string;
     @Column({ nullable: true })
     email?: string= null;
