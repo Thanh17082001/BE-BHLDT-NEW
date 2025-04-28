@@ -58,6 +58,7 @@ import { ExamModule } from './exam/exam.module';
 import { GameModule } from './game/game.module';
 import { GameQuestionModule } from './game-question/game-question.module';
 import { PartModule } from './part/part.module';
+import { ElearningModule } from './elearning/elearning.module';
 
 @Module({
   imports: [
@@ -114,7 +115,8 @@ import { PartModule } from './part/part.module';
     ExamModule,
     GameModule,
     GameQuestionModule,
-    PartModule
+    PartModule,
+    ElearningModule
   ],
   controllers: [AppController],
   providers: [AppService],
