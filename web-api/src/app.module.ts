@@ -59,6 +59,7 @@ import { GameModule } from './game/game.module';
 import { GameQuestionModule } from './game-question/game-question.module';
 import { PartModule } from './part/part.module';
 import { ElearningModule } from './elearning/elearning.module';
+import { ElearningVideoModule } from './elearning-video/elearning-video.module';
 
 @Module({
   imports: [
@@ -116,7 +117,8 @@ import { ElearningModule } from './elearning/elearning.module';
     GameModule,
     GameQuestionModule,
     PartModule,
-    ElearningModule
+    ElearningModule,
+    ElearningVideoModule
   ],
   controllers: [AppController],
   providers: [AppService],
