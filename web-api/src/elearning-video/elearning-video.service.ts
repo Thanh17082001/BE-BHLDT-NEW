@@ -27,14 +27,15 @@ export class ElearningVideoService {
   async create(
     createElearningVideoDto: CreateElearningVideoDto,
   ): Promise<ElearningVideo> {
-    const { name, path,elearning_id,page } = createElearningVideoDto;
+    const { name, path,elearning_id,page, minetype } = createElearningVideoDto;
 
 
     const newElearningVideo = this.repo.create({
       name,
       path,
       elearning_id,
-      page
+      page,
+      minetype
     });
     return await this.repo.save(newElearningVideo);
   }
@@ -110,17 +111,15 @@ export class ElearningVideoService {
     return new ItemDto(example);
   }
 
-  async remove(id: number) {
+  async remove(path: string) {
     const example: ElearningVideo = await this.repo.findOne({
-      where: { id },
-      relations: ['createdBy', 'school'],
+      where: { path },
     });
 
     if (!example) {
       throw new NotFoundException('Không tìm thấy tài nguyên');
     }
 
-    await this.repo.delete(id);
-    return new ItemDto(await this.repo.delete(id));
+    return new ItemDto(await this.repo.delete(path));
   }
 }

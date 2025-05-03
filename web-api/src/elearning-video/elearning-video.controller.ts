@@ -25,11 +25,16 @@ export class ElearningVideoController {
     const videoPath = path.join(__dirname,'..','..', '/public/elearning-video', privateFileName(normalizeString(file.originalname)));
     if (!fs.existsSync(folderPath)) {
       fs.mkdirSync(folderPath, { recursive: true });
-    }              
+    }
+    if (file.mimetype == 'video/mp4') {
+      createElearningVideoDto.minetype = 'video'
+    }
+    else {
+      createElearningVideoDto.minetype = 'image'
+  }
     fs.writeFileSync(videoPath, file.buffer);
                const linkFile = cutFilePath(videoPath, path.join(__dirname,'..','..', '/public/'));
     createElearningVideoDto.path = linkFile;
-    console.log(createElearningVideoDto);
 
     return this.elearningVideoService.create(createElearningVideoDto);
   }
@@ -49,8 +54,8 @@ export class ElearningVideoController {
     //   return this.elearningVideoService.update(+id, updateElearningDto);
     // }
   
-    @Delete(':id')
-    remove(@Param('id') id: string) {
-      return this.elearningVideoService.remove(+id);
+    @Delete(':path')
+    remove(@Param('path') path: string) {
+      return this.elearningVideoService.remove(path);
     }
 }

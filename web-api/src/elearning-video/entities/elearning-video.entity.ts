@@ -18,4 +18,9 @@ export class ElearningVideo extends AbstractEntity {
         nullable: true
     })
     page: number;
+
+    @Column({
+        nullable: true
+    })
+    minetype: string;
 }

@@ -1,5 +1,6 @@
-import { CreateElearningDto } from './dto/create-elearning.dto';
-import { UpdateElearningDto } from './dto/update-elearning.dto';
+import { CreateElearningThemeDto } from './dto/create-elearning-theme.dto';
+import { UpdateElearningThemeDto } from './dto/update-elearning-theme.dto';
+
 
 
 
@@ -14,38 +15,37 @@ import { Not, Repository } from 'typeorm';
 import { GradeService } from 'src/grade/grade.service';
 
 import { Question } from 'src/question/entities/question.entity';
-import { Elearning } from './entities/elearning.entity';
 import { PageOptionsDto } from 'src/utils/dtos/pageoptions-dto';
 import { ItemDto, PageDto } from 'src/utils/dtos/page-dto';
 import { PageMetaDto } from 'src/utils/dtos/pagemeta-dto';
+import { ElearningTheme } from './entities/elearning-theme.entity';
+
 
 @Injectable()
-export class ElearningService {
+export class ElearningThemeService {
   constructor(
-    @InjectRepository(Elearning) private repo: Repository<Elearning>,
+    @InjectRepository(ElearningTheme) private repo: Repository<ElearningTheme>,
   ) { }
   async create(
-    createElearningDto: CreateElearningDto,
-  ): Promise<Elearning> {
-    const { content, title,subjectId,topic } = createElearningDto;
+    createElearningThemeDto: CreateElearningThemeDto,
+  ): Promise<ElearningTheme> {
+    const { title,content,path,} = createElearningThemeDto;
 
-    
 
-    const newElearning = this.repo.create({
-      content,
+    const newElearningTheme = this.repo.create({
       title,
-      subjectId,
-      topic,
+      content,
+      path,
     });
-    return await this.repo.save(newElearning);
+    return await this.repo.save(newElearningTheme);
   }
 
   async findAll(
     pageOptions: PageOptionsDto,
-    query: Partial<Elearning>,
-  ): Promise<PageDto<Elearning>> {
+    query: Partial<ElearningTheme>,
+  ): Promise<PageDto<ElearningTheme>> {
     const queryBuilder = this.repo
-      .createQueryBuilder('Elearning')
+      .createQueryBuilder('ElearningTheme')
     
     const { page, take, skip, order, search } = pageOptions;
     const pagination: string[] = ['page', 'take', 'skip', 'order', 'search'];
@@ -56,7 +56,7 @@ export class ElearningService {
     if (!!query && Object.keys(query).length > 0) {
       Object.keys(query).forEach((key) => {
         if (key && !pagination.includes(key)) {
-          queryBuilder.andWhere(`Elearning.${key} = :${key}`, {
+          queryBuilder.andWhere(`ElearningTheme.${key} = :${key}`, {
             [key]: query[key],
           });
         }
@@ -67,7 +67,7 @@ export class ElearningService {
     // 🎯 Tìm kiếm theo tên môn học (bỏ dấu)
     if (search) {
       queryBuilder.andWhere(
-        `LOWER(unaccent("Elearning".name)) ILIKE LOWER(unaccent(:search))`,
+        `LOWER(unaccent("ElearningTheme".name)) ILIKE LOWER(unaccent(:search))`,
         {
           search: `%${search}%`,
         },
@@ -75,7 +75,7 @@ export class ElearningService {
     }
 
     // 🎯 Phân trang và sắp xếp
-    queryBuilder.orderBy('Elearning.createdAt', order).skip(skip).take(take);
+    queryBuilder.orderBy('ElearningTheme.createdAt', order).skip(skip).take(take);
 
     const itemCount = await queryBuilder.getCount();
     const { entities } = await queryBuilder.getRawAndEntities();
@@ -86,7 +86,7 @@ export class ElearningService {
     );
   }
 
-  async findOne(id: number): Promise<ItemDto<Elearning>> {
+  async findOne(id: number): Promise<ItemDto<ElearningTheme>> {
     const example = await this.repo.findOne({ where: { id } });
     if (!example) {
       throw new HttpException('Not found', 404);
@@ -94,17 +94,17 @@ export class ElearningService {
     return new ItemDto(example);
   }
 
-  async update(id: number, updateElearningDto: UpdateElearningDto) {
-    const { content, title,subjectId,topic } = updateElearningDto;
+  async update(id: number, updateElearningThemeDto: UpdateElearningThemeDto) {
+    const {title,content } = updateElearningThemeDto;
 
 
-    const example: Elearning = await this.repo.findOne({ where: { id }});
+    const example: ElearningTheme = await this.repo.findOne({ where: { id }});
 
     if (!example) {
-      throw new NotFoundException(`Elearning with ID ${id} not found`);
+      throw new NotFoundException(`ElearningTheme with ID ${id} not found`);
     }
 
-    this.repo.merge(example, { content, title, subjectId,topic });
+    this.repo.merge(example, {title,content });
 
     await this.repo.update(id, example);
 
@@ -112,8 +112,9 @@ export class ElearningService {
   }
 
   async remove(id: number) {
-    const example: Elearning = await this.repo.findOne({
+    const example: ElearningTheme = await this.repo.findOne({
       where: { id },
+      relations: ['createdBy', 'school'],
     });
 
     if (!example) {
