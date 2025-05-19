@@ -21,6 +21,11 @@ import { PageMetaDto } from 'src/utils/dtos/pagemeta-dto';
 import { ElearningTheme } from './entities/elearning-theme.entity';
 
 
+import { unlinkSync, existsSync } from 'fs';
+import * as path from 'path';
+
+
+
 @Injectable()
 export class ElearningThemeService {
   constructor(
@@ -95,7 +100,7 @@ export class ElearningThemeService {
   }
 
   async update(id: number, updateElearningThemeDto: UpdateElearningThemeDto) {
-    const {title,content } = updateElearningThemeDto;
+    const {title,content ,path} = updateElearningThemeDto;
 
 
     const example: ElearningTheme = await this.repo.findOne({ where: { id }});
@@ -104,7 +109,7 @@ export class ElearningThemeService {
       throw new NotFoundException(`ElearningTheme with ID ${id} not found`);
     }
 
-    this.repo.merge(example, {title,content });
+    this.repo.merge(example, { title, content, path });
 
     await this.repo.update(id, example);
 
@@ -114,8 +119,19 @@ export class ElearningThemeService {
   async remove(id: number) {
     const example: ElearningTheme = await this.repo.findOne({
       where: { id },
-      relations: ['createdBy', 'school'],
     });
+
+     const filePath = path.join(__dirname, '..', '..', 'public', example.path);
+    
+        // Kiểm tra và xóa file
+        if (existsSync(filePath)) {
+          try {
+            unlinkSync(filePath); // Xoá đồng bộ
+          } catch (err) {
+            console.error('Lỗi khi xoá file:', err);
+            // Tuỳ chọn: throw new InternalServerErrorException('Không thể xoá file vật lý');
+          }
+        }
 
     if (!example) {
       throw new NotFoundException('Không tìm thấy tài nguyên');

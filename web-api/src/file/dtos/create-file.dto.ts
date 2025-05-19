@@ -28,6 +28,11 @@ export class CreateFileDto {
     @IsOptional()
     parent_id?: number;
 
+    @ApiProperty({ required: false })
+    @IsString()
+    @IsOptional()
+    isGdGroup?: boolean = true;
+
     @ApiProperty({required:false})
     @IsString()
     @IsOptional()
@@ -38,5 +43,7 @@ export class CreateFileDto {
     file?: Express.Multer.File
     @IsBoolean()
     isFolder: boolean = true;
+
+
     
 }

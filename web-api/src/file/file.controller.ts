@@ -110,7 +110,8 @@ export class FileController {
         subject_id:+createFileDto.subject_id ,
         previewImage: linkThumbnail,
         path: linkFile,
-        isFolder
+        isFolder,
+        isGdGroup: createFileDto.isGdGroup,
       }
       const fileCreate = await this.fileService.create(data);
       if (images.length > 0) {

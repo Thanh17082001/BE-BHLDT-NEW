@@ -22,7 +22,9 @@ export class ElearningVideoController {
     @UseInterceptors(FileInterceptor('file'))
   create( @UploadedFile() file: Express.Multer.File,@Body() createElearningVideoDto: CreateElearningVideoDto) {
     const folderPath = path.join(__dirname, '..', '..', 'public', 'elearning-video');
-    const videoPath = path.join(__dirname,'..','..', '/public/elearning-video', privateFileName(normalizeString(file.originalname)));
+    let videoPath = path.join(__dirname, '..', '..', '/public/elearning-video', privateFileName(normalizeString(file.originalname)));
+    videoPath = videoPath.replace(/\\/g, '/');
+    console.log(videoPath);
     if (!fs.existsSync(folderPath)) {
       fs.mkdirSync(folderPath, { recursive: true });
     }
@@ -54,8 +56,8 @@ export class ElearningVideoController {
     //   return this.elearningVideoService.update(+id, updateElearningDto);
     // }
   
-    @Delete(':path')
-    remove(@Param('path') path: string) {
-      return this.elearningVideoService.remove(path);
-    }
+  @Delete()
+  remove(@Query('path') path: string) {
+    return this.elearningVideoService.remove(path);
+  }
 }

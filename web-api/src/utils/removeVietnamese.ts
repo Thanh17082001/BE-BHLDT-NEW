@@ -1,4 +1,5 @@
 export function normalizeString(fileName) {
+    console.log(fileName, 'ttttt');
     const parts = fileName.split('.');
     if (parts.length < 2) {
         return fileName; // Nếu không có phần mở rộng, trả lại tên gốc

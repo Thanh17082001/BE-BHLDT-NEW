@@ -11,6 +11,8 @@ export class CreateElearningThemeDto {
     @IsString()
     content: string;
 
+    @ApiProperty({ required: false })
+    @IsOptional()
     path?: string = '';
 
     @ApiProperty({ type: 'file', format: 'file', required: false })

@@ -6,6 +6,9 @@ import { Entity, Column, PrimaryGeneratedColumn, Index, OneToMany } from "typeor
 export class File extends AbstractEntity {
     @Column()
     name: string;
+
+    @Column({default:true})
+    isGdGroup: boolean;
     @Column({
         nullable: true
     })

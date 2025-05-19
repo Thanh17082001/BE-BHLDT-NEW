@@ -11,6 +11,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Not, Repository } from 'typeorm';
 import { GradeService } from 'src/grade/grade.service';
 
+import { unlinkSync, existsSync } from 'fs';
+import * as pathLib from 'path';
+
 import { Question } from 'src/question/entities/question.entity';
 import { PageOptionsDto } from 'src/utils/dtos/pageoptions-dto';
 import { ItemDto, PageDto } from 'src/utils/dtos/page-dto';
@@ -18,6 +21,7 @@ import { PageMetaDto } from 'src/utils/dtos/pagemeta-dto';
 import { ElearningVideo } from './entities/elearning-video.entity';
 import { CreateElearningVideoDto } from './dto/create-elearning-video.dto';
 import { UpdateElearningVideoDto } from './dto/update-elearning-video.dto';
+
 
 @Injectable()
 export class ElearningVideoService {
@@ -112,14 +116,26 @@ export class ElearningVideoService {
   }
 
   async remove(path: string) {
-    const example: ElearningVideo = await this.repo.findOne({
-      where: { path },
-    });
-
-    if (!example) {
+    const result = await this.repo.delete({ path: path });
+    if (result.affected === 0) {
       throw new NotFoundException('Không tìm thấy tài nguyên');
     }
+    
+    const filePath = pathLib.join(__dirname, '..', '..', 'public', path);
 
-    return new ItemDto(await this.repo.delete(path));
+    // Kiểm tra và xóa file
+    if (existsSync(filePath)) {
+      try {
+        unlinkSync(filePath); // Xoá đồng bộ
+      } catch (err) {
+        console.error('Lỗi khi xoá file:', err);
+        // Tuỳ chọn: throw new InternalServerErrorException('Không thể xoá file vật lý');
+      }
+    }
+
+    return new ItemDto({ message: 'Xóa thành công', affected: result.affected });
   }
 }
+
+
+//elearning-video\3c425477-f7eb-4921-bb73-7ec776561a6b_sa-ng-gia-icm-x-jack-official-music-video.mp4

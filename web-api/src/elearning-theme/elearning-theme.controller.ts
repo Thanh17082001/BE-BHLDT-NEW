@@ -50,13 +50,24 @@ export class ElearningThemeController {
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('file'))
   update(@UploadedFile() file: Express.Multer.File, @Param('id') id: string, @Body() updateElearningDto: UpdateElearningThemeDto) {
-
     if (file) {
       const folderPath = path.join(__dirname, '..', '..', 'public', 'elearning-theme');
       const themePath = path.join(__dirname, '..', '..', '/public/elearning-theme', privateFileName(normalizeString(file.originalname)));
       if (!fs.existsSync(folderPath)) {
         fs.mkdirSync(folderPath, { recursive: true });
       }
+
+      const filePath = path.join(__dirname, '..', '..', 'public', updateElearningDto.path);
+      
+          // Kiểm tra và xóa file
+          if (fs.existsSync(filePath)) {
+            try {
+              fs.unlinkSync(filePath); // Xoá đồng bộ
+            } catch (err) {
+              console.error('Lỗi khi xoá file:', err);
+              // Tuỳ chọn: throw new InternalServerErrorException('Không thể xoá file vật lý');
+            }
+          }
 
       fs.writeFileSync(themePath, file.buffer);
       const linkFile = cutFilePath(themePath, path.join(__dirname, '..', '..', '/public/'));
