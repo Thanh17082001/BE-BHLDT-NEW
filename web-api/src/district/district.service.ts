@@ -36,8 +36,7 @@ export class DistrictService {
       queryBuilder.where("district.name = :name", { name: nameQuery });
     }
 
-    console.log("pageOptionsDto.skip", pageOptionsDto.skip);
-    console.log("pageOptionsDto.take", pageOptionsDto.take);
+
 
     await queryBuilder.orderBy("district.createdAt", pageOptionsDto.order).skip(pageOptionsDto.skip).take(pageOptionsDto.take);
 

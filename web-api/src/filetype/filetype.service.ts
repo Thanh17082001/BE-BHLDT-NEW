@@ -32,8 +32,6 @@ export class FileTypeService {
       queryBuilder.where("fileType.name = :name", { name: nameQuery });
     }
 
-    console.log("pageOptionsDto.skip", pageOptionsDto.skip);
-    console.log("pageOptionsDto.take", pageOptionsDto.take);
 
     await queryBuilder.orderBy("fileType.createdAt", pageOptionsDto.order).skip(pageOptionsDto.skip).take(pageOptionsDto.take);
 
@@ -42,10 +40,8 @@ export class FileTypeService {
 
     const pageMetaDto = new PageMetaDto({ pageOptionsDto, itemCount });
 
-    console.log("find all fileTypes - entities 22", entities);
-    console.log("find all fileTypes - itemCount", itemCount);
+    
     const fileTypes = transformToDto(FileTypeDto, entities) as FileTypeDto[];
-    console.log('transform', fileTypes);
 
     return new PageDto(fileTypes, pageMetaDto);
   }

@@ -4,7 +4,7 @@ import { CreateLessonPlanDto } from './dto/create-lesson-plan.dto';
 import { UpdateLessonPlanDto } from './dto/update-lesson-plan.dto';
 import { ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
-import * as path  from 'path';
+import * as path from 'path';
 import * as fs from 'fs';
 import { LessonPlanInterFace } from './interface/lesson-plan.interface';
 import { ItemDto, PageDto } from 'src/utils/dtos/page-dto';
@@ -25,31 +25,31 @@ export class LessonPlanController {
     try {
       let previewImage: string = ''
       let pathPtt: string = ''
-     //ptt
+      //ptt
       if (file.mimetype == 'application/vnd.openxmlformats-officedocument.presentationml.presentation') {
-            previewImage='image/image-ptt.jpg'
-            const nameFile = `${uuidv4()}_${normalizeString(file.originalname)}`
-            const pttPath = path.join(__dirname, '..', '..', '/public/ptt', nameFile);
-            fs.writeFileSync(pttPath, file.buffer);
-            pathPtt = `ptt/${nameFile}`
-          }
-          //word
+        previewImage = 'image/image-ptt.png'
+        const nameFile = `${uuidv4()}_${normalizeString(file.originalname)}`
+        const pttPath = path.join(__dirname, '..', '..', '/public/ptt', nameFile);
+        fs.writeFileSync(pttPath, file.buffer);
+        pathPtt = `ptt/${nameFile}`
+      }
+      //word
       else {
-            previewImage='image/image-word.jpg'
-            const nameFile = `${uuidv4()}_${normalizeString(file.originalname)}`
-            const pttPath = path.join(__dirname, '..', '..', '/public/word', nameFile);
-            fs.writeFileSync(pttPath, file.buffer);
-            pathPtt = `word/${nameFile}`
-          }
-      
+        previewImage = 'image/image-word.png'
+        const nameFile = `${uuidv4()}_${normalizeString(file.originalname)}`
+        const pttPath = path.join(__dirname, '..', '..', '/public/word', nameFile);
+        fs.writeFileSync(pttPath, file.buffer);
+        pathPtt = `word/${nameFile}`
+      }
+
 
       const data = {
         name: createLessonPlanDto.name,
         topic: createLessonPlanDto.topic,
         path: pathPtt,
-        previewImage:previewImage,
+        previewImage: previewImage,
         subjectId: Number(createLessonPlanDto.subjectId),
-        fileType:+createLessonPlanDto.fileType
+        fileType: +createLessonPlanDto.fileType
       }
       return this.lessonPlanService.create(data);
     } catch (error) {
@@ -63,51 +63,51 @@ export class LessonPlanController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string):Promise<ItemDto<LessonPlanInterFace>> {
+  async findOne(@Param('id') id: string): Promise<ItemDto<LessonPlanInterFace>> {
     return await this.lessonPlanService.findOne(+id);
   }
 
   @Put(':id')
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('file'))
-  async update(@UploadedFile() file: Express.Multer.File,@Param('id') id: string, @Body() updateLessonDto: UpdateLessonPlanDto): Promise<LessonPlanInterFace> {
+  async update(@UploadedFile() file: Express.Multer.File, @Param('id') id: string, @Body() updateLessonDto: UpdateLessonPlanDto): Promise<LessonPlanInterFace> {
     try {
       const lesson = await this.lessonPlanService.findOne(+id)
       let previewImage: string = ''
       let pathPtt: string = ''
       if (!lesson) {
-         throw new BadRequestException('Lesson is not found')
+        throw new BadRequestException('Lesson is not found')
       }
-     //ptt
+      //ptt
       if (file.mimetype == 'application/vnd.openxmlformats-officedocument.presentationml.presentation') {
-            previewImage='image/image-ptt.jpg'
-            const nameFile = `${uuidv4()}_${normalizeString(file.originalname)}`
-            const pttPath = path.join(__dirname, '..', '..', '/public/ptt', nameFile);
-            fs.writeFileSync(pttPath, file.buffer);
-            pathPtt = `ptt/${nameFile}`
-            const pttPathOld = path.join(__dirname, '..', '..', '/public', lesson.data?.path);
-            fs.unlinkSync(pttPathOld);
-        
-          }
-          //word
+        previewImage = 'image/image-ptt.png'
+        const nameFile = `${uuidv4()}_${normalizeString(file.originalname)}`
+        const pttPath = path.join(__dirname, '..', '..', '/public/ptt', nameFile);
+        fs.writeFileSync(pttPath, file.buffer);
+        pathPtt = `ptt/${nameFile}`
+        const pttPathOld = path.join(__dirname, '..', '..', '/public', lesson.data?.path);
+        fs.unlinkSync(pttPathOld);
+
+      }
+      //word
       else {
-            previewImage='image/image-word.jpg'
-            const nameFile = `${uuidv4()}_${normalizeString(file.originalname)}`
-            const pttPath = path.join(__dirname, '..', '..', '/public/word', nameFile);
-            fs.writeFileSync(pttPath, file.buffer);
-            pathPtt = `word/${nameFile}`
+        previewImage = 'image/image-word.png'
+        const nameFile = `${uuidv4()}_${normalizeString(file.originalname)}`
+        const pttPath = path.join(__dirname, '..', '..', '/public/word', nameFile);
+        fs.writeFileSync(pttPath, file.buffer);
+        pathPtt = `word/${nameFile}`
         const pttPathOld = path.join(__dirname, '..', '..', '/public', lesson?.data.path);
-            fs.unlinkSync(pttPathOld);
-          }
+        fs.unlinkSync(pttPathOld);
+      }
       const data = {
         name: updateLessonDto.name,
         topic: updateLessonDto.topic,
         path: pathPtt,
-        previewImage:previewImage,
+        previewImage: previewImage,
         subjectId: Number(updateLessonDto.subjectId),
-        fileType:+updateLessonDto.fileType
+        fileType: +updateLessonDto.fileType
       }
-      return this.lessonPlanService.update(+id,data);
+      return this.lessonPlanService.update(+id, data);
     } catch (error) {
       console.log(error);
     }

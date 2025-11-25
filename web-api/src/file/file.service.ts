@@ -408,76 +408,31 @@ export class FileService {
     });
   }
 
-  // async convertPdfToImages(pdfPath: string, outputDir: string): Promise<string[]> {
-  // try {
-  //   // const outputFiles: string[] = [];
-
-  //   // Đảm bảo thư mục đầu ra tồn tại
-  //   await fs.mkdir(outputDir, { recursive: true });
-  //   const existingFiles = new Set(await fs.readdir(outputDir));
-
-  //   // Thiết lập tùy chọn cho việc chuyển đổi
-  //   const options = {
-  //     format: 'png',
-  //     out_dir: outputDir,
-  //     out_prefix: path.basename(pdfPath, path.extname(pdfPath)),
-  //     page: null, // Chuyển đổi tất cả các trang
-  //   };
-  //   // Chuyển đổi PDF thành hình ảnh
-  //   await pdfPoppler.convert(pdfPath, options);
-  //   // Lấy danh sách các tệp đã chuyển đổi
-  //   const newFiles = await fs.readdir(outputDir);
-  //   const outputFiles = newFiles.filter((file) => file.endsWith('.png') && !existingFiles.has(file)).map((file) => `images-convert/${file}`);
-  //   return outputFiles;
-  // } catch (error) {
-  //   console.error('Error converting PDF to images:', error);
-  //   throw new Error('Failed to convert PDF to images');
-  // }
-  // }
-
   async convertPdfToImages(pdfPath: string, outputDir: string): Promise<string[]> {
-    try {
-      await fs.mkdir(outputDir, { recursive: true });
-      console.log(pdfPath);
+  try {
+    // const outputFiles: string[] = [];
 
-      const pdfBuffer = await fs.readFile(pdfPath);
-      const pdfData = await pdf(pdfBuffer);
-      const totalPages = pdfData.numpages;
+    // Đảm bảo thư mục đầu ra tồn tại
+    await fs.mkdir(outputDir, { recursive: true });
+    const existingFiles = new Set(await fs.readdir(outputDir));
 
-      const timestamp = Date.now();
-      const options = {
-        density: 100,
-        saveFilename: "temp",
-        savePath: outputDir,
-        format: "png",
-        width: 1000,
-        height: 1000,
-        quality: 100,
-      };
-
-      const convert = fromPath(pdfPath, options);
-      const outputFiles: string[] = [];
-      const publicPath = path.resolve(__dirname, '../../public/');
-
-      for (let page = 1; page <= totalPages; page++) {
-        const result = await convert(page, { responseType: "image" });
-
-        const finalFilename = `${timestamp}_page${page}.png`;
-        const finalPath = path.join(outputDir, finalFilename);
-
-        await fs.rename(result.path, finalPath);
-
-        // Chuáº©n hÃ³a path relative so vá»›i thÆ° má»¥c public
-        const relativePath = path.relative(publicPath, finalPath).split(path.sep).join('/');
-        outputFiles.push(relativePath);
-      }
-
-      console.log("PDF conversion completed.");
-      return outputFiles;
-    } catch (error) {
-      console.error("Error converting PDF to images:", error);
-      throw error;
-    }
+    // Thiết lập tùy chọn cho việc chuyển đổi
+    const options = {
+      format: 'png',
+      out_dir: outputDir,
+      out_prefix: path.basename(pdfPath, path.extname(pdfPath)),
+      page: null, // Chuyển đổi tất cả các trang
+    };
+    // Chuyển đổi PDF thành hình ảnh
+    await pdfPoppler.convert(pdfPath, options);
+    // Lấy danh sách các tệp đã chuyển đổi
+    const newFiles = await fs.readdir(outputDir);
+    const outputFiles = newFiles.filter((file) => file.endsWith('.png') && !existingFiles.has(file)).map((file) => `images-convert/${file}`);
+    return outputFiles;
+  } catch (error) {
+    console.error('Error converting PDF to images:', error);
+    throw new Error('Failed to convert PDF to images');
+  }
   }
 
   

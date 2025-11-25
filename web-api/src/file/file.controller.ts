@@ -86,7 +86,9 @@ export class FileController {
               fs.writeFileSync(pdfPath, file.buffer);
             await this.fileService.generateImageFromPdf(pdfPath, imagePath)
             const outputDir = path.join(__dirname, '../../public/images-convert');
-           images = await this.fileService.convertPdfToImages(pdfPath, outputDir)
+            images = await this.fileService.convertPdfToImages(pdfPath, outputDir)
+            
+            console.log(images);
             
                linkFile = cutFilePath(pdfPath, path.join(__dirname,'..','..', '/public/'));
             linkThumbnail=cutFilePath(imagePath, path.join(__dirname,'..','..', '/public/'))
@@ -111,7 +113,7 @@ export class FileController {
         previewImage: linkThumbnail,
         path: linkFile,
         isFolder,
-        isGdGroup: createFileDto.isGdGroup,
+        isGdGroup: +createFileDto.isGdGroup == 1 ? true : false,
       }
       const fileCreate = await this.fileService.create(data);
       if (images.length > 0) {
