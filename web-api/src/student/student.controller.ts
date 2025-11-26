@@ -76,9 +76,9 @@ export class StudentController {
        
        classId:+importFileExcel.classId,
        }
-      const ward:Ward = await this.wardService.findOneByWardName(capitalizeWords(valueItem[8]))
-      const district:District = await this.districtService.findByName(capitalizeWords(valueItem[9]))
-      const province :Province = await this.provinceService.findByName(capitalizeWords(valueItem[10]))
+      // const ward:Ward = await this.wardService.findOneByWardName(capitalizeWords(valueItem[8]))
+      // const district:District = await this.districtService.findByName(capitalizeWords(valueItem[9]))
+      // const province :Province = await this.provinceService.findByName(capitalizeWords(valueItem[10]))
 
        const profile: CreateProfileDto = {
           code: valueItem[1],
@@ -88,9 +88,9 @@ export class StudentController {
          phone: valueItem[5],
          email:valueItem[6],
          street:valueItem[7],
-         ward_id: ward.id ? +ward.id : 0,
-         district_id: district.id ? +district.id : 0,
-         province_id:province.id ? +province.id : 0
+         ward_id:  0,
+         district_id: 0,
+         province_id: 0
       }
       const result = await this.studentService.create(student, profile);
       students.push(result)

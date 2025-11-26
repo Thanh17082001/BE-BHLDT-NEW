@@ -15,8 +15,8 @@ export class Profile extends AbstractEntity {
     gender: string;
     @Column()
     phone: string;
-    @Column()
-    street: string;
+    @Column({nullable:true})
+    street: string =null;
     @Column()
     birthday: Date;
     @Column()
