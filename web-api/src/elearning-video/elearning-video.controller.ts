@@ -20,20 +20,27 @@ export class ElearningVideoController {
   @Post()
      @ApiConsumes('multipart/form-data')
     @UseInterceptors(FileInterceptor('file'))
-  create( @UploadedFile() file: Express.Multer.File,@Body() createElearningVideoDto: CreateElearningVideoDto) {
+  create(@UploadedFile() file: Express.Multer.File, @Body() createElearningVideoDto: CreateElearningVideoDto) {
+    console.log(1);
     const folderPath = path.join(__dirname, '..', '..', 'public', 'elearning-video');
     let videoPath = path.join(__dirname, '..', '..', '/public/elearning-video', privateFileName(normalizeString(file.originalname)));
     videoPath = videoPath.replace(/\\/g, '/');
-    console.log(videoPath);
+    console.log(file.mimetype);
     if (!fs.existsSync(folderPath)) {
       fs.mkdirSync(folderPath, { recursive: true });
     }
-    if (file.mimetype == 'video/mp4') {
+    else if (file.mimetype == 'video/mp4') {
       createElearningVideoDto.minetype = 'video'
+    }
+    else if (file.mimetype == 'application/octet-stream') {
+      createElearningVideoDto.minetype = '3D'
+    }
+    else if (file.mimetype == 'audio/mpeg') {
+      createElearningVideoDto.minetype = 'audio'
     }
     else {
       createElearningVideoDto.minetype = 'image'
-  }
+    }
     fs.writeFileSync(videoPath, file.buffer);
                const linkFile = cutFilePath(videoPath, path.join(__dirname,'..','..', '/public/'));
     createElearningVideoDto.path = linkFile;
@@ -48,6 +55,8 @@ export class ElearningVideoController {
   
     @Get(':id')
     findOne(@Param('id') id: string) {
+      console.log(4);
+
       return this.elearningVideoService.findOne(+id);
     }
   
@@ -58,6 +67,7 @@ export class ElearningVideoController {
   
   @Delete()
   remove(@Query('path') path: string) {
+    console.log(3);
     return this.elearningVideoService.remove(path);
   }
 }

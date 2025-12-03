@@ -24,7 +24,8 @@ export class ElearningThemeController {
     @UseInterceptors(FileInterceptor('file'))
   create( @UploadedFile() file: Express.Multer.File,@Body() createElearningThemeDto: CreateElearningThemeDto) {
     const folderPath = path.join(__dirname, '..', '..', 'public', 'elearning-theme');
-    const themePath = path.join(__dirname,'..','..', '/public/elearning-theme', privateFileName(normalizeString(file.originalname)));
+    const themePath = path.join(__dirname, '..', '..', '/public/elearning-theme', privateFileName(normalizeString(file.originalname)));
+    console.log('a;slkdja;slkdjasd 11111111111111111');
     if (!fs.existsSync(folderPath)) {
       fs.mkdirSync(folderPath, { recursive: true });
     }
