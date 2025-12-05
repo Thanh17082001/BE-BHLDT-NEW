@@ -62,9 +62,9 @@ export class FileController {
   @Post()
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('file'))
-  async create(@UploadedFile() file: Express.Multer.File,@Body() createFileDto: CreateFileDto) {
+  async create(@UploadedFile() file: Express.Multer.File, @Body() createFileDto: CreateFileDto) {
     try {
-      let linkFile:string = '';
+      let linkFile: string = '';
       let linkThumbnail: string = '';
       let images: Array<string> = []
       let isFolder = true
@@ -74,42 +74,45 @@ export class FileController {
         const imagePath = path.join(__dirname, '..', '..', `/public/image/${privateFileName('image-thumbnail.png')}`);
         switch (file.mimetype) {
           case ('video/mp4'):
-              const videoPath = path.join(__dirname,'..','..', '/public/video', privateFileName(normalizeString(file.originalname)));
-              fs.writeFileSync(videoPath, file.buffer);
-              await this.fileService.generateImageFromVideo2(videoPath, imagePath, '00:00:14')
-            linkFile = cutFilePath(videoPath, path.join(__dirname,'..','..', '/public/'));
-            linkThumbnail=cutFilePath(imagePath, path.join(__dirname,'..','..', '/public/'))
-            
+            const videoPath = path.join(__dirname, '..', '..', '/public/video', privateFileName(normalizeString(file.originalname)));
+            fs.writeFileSync(videoPath, file.buffer);
+            await this.fileService.generateImageFromVideo2(videoPath, imagePath, '00:00:14')
+            linkFile = cutFilePath(videoPath, path.join(__dirname, '..', '..', '/public/'));
+            linkThumbnail = cutFilePath(imagePath, path.join(__dirname, '..', '..', '/public/'))
+
             break;
           case ('application/pdf'):
-              const pdfPath = path.join(__dirname,'..','..', '/public/book', privateFileName(normalizeString(file.originalname)));
-              fs.writeFileSync(pdfPath, file.buffer);
+            const pdfPath = path.join(__dirname, '..', '..', '/public/book', privateFileName(normalizeString(file.originalname)));
+            fs.writeFileSync(pdfPath, file.buffer);
             await this.fileService.generateImageFromPdf(pdfPath, imagePath)
             const outputDir = path.join(__dirname, '../../public/images-convert');
             images = await this.fileService.convertPdfToImages(pdfPath, outputDir)
-            
-            console.log(images);
-            
-               linkFile = cutFilePath(pdfPath, path.join(__dirname,'..','..', '/public/'));
-            linkThumbnail=cutFilePath(imagePath, path.join(__dirname,'..','..', '/public/'))
+            linkFile = cutFilePath(pdfPath, path.join(__dirname, '..', '..', '/public/'));
+            linkThumbnail = cutFilePath(imagePath, path.join(__dirname, '..', '..', '/public/'))
+            break;
+          case ('application/vnd.openxmlformats-officedocument.wordprocessingml.document'):
+            const wordPath = path.join(__dirname, '..', '..', '/public/exam', privateFileName(normalizeString(file.originalname)));
+            fs.writeFileSync(wordPath, file.buffer);
+            linkFile = cutFilePath(wordPath, path.join(__dirname, '..', '..', '/public/'));
+            linkThumbnail = 'image/image-word.png'
             break;
           default:
-             const imageUrl = path.join(__dirname,'..','..', '/public/image', privateFileName(normalizeString(file.originalname)));
+            const imageUrl = path.join(__dirname, '..', '..', '/public/image', privateFileName(normalizeString(file.originalname)));
             fs.writeFileSync(imageUrl, file.buffer);
-            linkFile = cutFilePath(imageUrl, path.join(__dirname,'..','..', '/public/'));
+            linkFile = cutFilePath(imageUrl, path.join(__dirname, '..', '..', '/public/'));
             const ourdir: string = path.join(__dirname, '..', '..', '/public/image', privateFileName(normalizeString('thumbnail-image.jpeg')));
             // Resize quantity image
-            const link:string = await this.fileService.resizeImage(file.buffer,ourdir)
-          linkThumbnail=cutFilePath(link, path.join(__dirname,'..','..', '/public/'))
+            const link: string = await this.fileService.resizeImage(file.buffer, ourdir)
+            linkThumbnail = cutFilePath(link, path.join(__dirname, '..', '..', '/public/'))
         }
-          
+
       }
       const data: CreateFileDto = {
         name: createFileDto.name,
         filetype_id: +createFileDto.filetype_id,
         topic_id: +createFileDto.topic_id || null,
-        parent_id:+createFileDto.parent_id ,
-        subject_id:+createFileDto.subject_id ,
+        parent_id: +createFileDto.parent_id,
+        subject_id: +createFileDto.subject_id,
         previewImage: linkThumbnail,
         path: linkFile,
         isFolder,
@@ -117,11 +120,11 @@ export class FileController {
       }
       const fileCreate = await this.fileService.create(data);
       if (images.length > 0) {
-        for (let i = 0; i < images?.length; i++){
+        for (let i = 0; i < images?.length; i++) {
           const imageDto: CreateImageDto = {
             name: createFileDto.name,
             fileId: fileCreate.id,
-            path:images[i] ||''
+            path: images[i] || ''
           }
           await this.imageService.create(imageDto)
         }
@@ -133,41 +136,41 @@ export class FileController {
   }
 
   @Get()
-    
-  findAll(@Query() query: Partial<File>, @Query() pageOptionDto: PageOptionsDto):Promise<PageDto<File>> {
-    return this.fileService.findAll(pageOptionDto,query);
+
+  findAll(@Query() query: Partial<File>, @Query() pageOptionDto: PageOptionsDto): Promise<PageDto<File>> {
+    return this.fileService.findAll(pageOptionDto, query);
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string) :Promise<ItemDto<File>> {
+  async findOne(@Param('id') id: string): Promise<ItemDto<File>> {
     return await this.fileService.findOne(+id);
   }
 
- 
-   @Delete(':id')
-   async removeGrade(@Param('id') id: number) {
-     const file = await this.fileService.remove(+id)
-     if (!file.isFolder) {
-       const pathOld = path.join(__dirname, '..', '..', '/public', file?.path);
-       const pathPrivew = path.join(__dirname, '..', '..', '/public', file?.previewImage);   
-       console.log(pathOld);
-       console.log(pathPrivew);
-       
-       fs.unlinkSync(pathOld);
-       if (fs.existsSync(pathPrivew)) {
-         
-         fs.unlinkSync(pathPrivew);
-       }
-       if (file.images.length > 0) {
-         const images = file.images;
-         for (let i = 0; i < images.length; i++){
-          
-            const pathOldImage = path.join(__dirname, '..', '..', '/public', images[i].path);
-           fs.unlinkSync(pathOldImage);
-           
-         }
-       }
-     }
+
+  @Delete(':id')
+  async removeGrade(@Param('id') id: number) {
+    const file = await this.fileService.remove(+id)
+    if (!file.isFolder) {
+      const pathOld = path.join(__dirname, '..', '..', '/public', file?.path);
+      const pathPrivew = path.join(__dirname, '..', '..', '/public', file?.previewImage);
+      console.log(pathOld);
+      console.log(pathPrivew);
+
+      fs.unlinkSync(pathOld);
+      if (fs.existsSync(pathPrivew)) {
+
+        fs.unlinkSync(pathPrivew);
+      }
+      if (file.images.length > 0) {
+        const images = file.images;
+        for (let i = 0; i < images.length; i++) {
+
+          const pathOldImage = path.join(__dirname, '..', '..', '/public', images[i].path);
+          fs.unlinkSync(pathOldImage);
+
+        }
+      }
+    }
     return file;
   }
 }
